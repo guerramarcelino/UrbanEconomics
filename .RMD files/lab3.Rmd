@@ -1,0 +1,152 @@
+---
+title: "Mapping data with tmap"
+author: "Marcelino Guerra"
+date: "Last update: 10/08/2020"
+abstract: Lecture notes on how to read shapefiles and make maps using the tmap package.
+output: html_document
+---
+
+<style type="text/css">
+  body{
+  font-size: 13pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(include = TRUE)  # TRUE for solution; FALSE for questions set
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(message = FALSE)
+  knitr::opts_chunk$set(warning = FALSE)
+  knitr::opts_chunk$set(fig.height = 6, fig.width = 11, out.width = '100%', fig.align = "center")
+  options(width = 90)
+
+```
+
+## Reading the .shp file
+
+In this exercise, we will use data from Chicago-IL communities. The source is the GeoDa Data and Lab. The dataset Airbnb (same information used in [HW #1](https://guerramarcelino.github.io/Econ414/HW/HW1)) refers to Airbnb rentals, socioeconomic indicators, and crime by community area in Chicago. You can find more information about it [here](https://geodacenter.github.io/data-and-lab//airbnb_Chicago-2015/). [Here](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/airbnb.zip), you can download the related shapefile.
+
+Again, the first step is to set up your working directory using `setwd()`, placing all the necessary data at the same place. 
+```{r, include=T}
+setwd("C:/Users/User/Desktop/Rlabs/Lab3")
+```
+
+After that, you need to `require()` all the packages you need to perform the task. If it is the first time you are using them, you need to `install.packages()` first.
+
+```{r, echo=T, results = 'hide'}
+libs <- c("tigris","rgdal", "maptools", "reshape", "sp", "spdep", "GISTools", "ggplot2", "tidyverse", "tmap", "viridis")
+## If you do not have those packages, run 
+## lapply(libs, install.packages, character.only = TRUE)
+## before this
+lapply(libs, require, character.only = TRUE)
+
+```
+
+To read the .shp file `airbnb_Chicago 2015`, use the function `readOGR()`.
+
+```{r, include=T}
+chitown<-readOGR("airbnb_Chicago 2015.shp", layer="airbnb_Chicago 2015")
+```
+
+Let's check the file first:
+```{r}
+class(chitown)
+```
+
+That means your spatial object has some data attached to it. To see how the shape looks like: 
+
+```{r}
+plot(chitown)
+```
+
+To check the data attached to the shapefile (try `View(chitown@data)`), 
+```{r}
+head(chitown@data)
+```
+
+## Mapping data with tmap
+
+Using the `tmap` package, one can easily make static quantile maps. In this one, we see the distribution of households below poverty (in percent) in Chicago communities:
+
+```{r}
+tm_shape(chitown)+tm_borders(lwd = 2, col = "white", alpha = .4)+
+  tm_polygons("poverty", style="quantile", alpha=0.7,palette = "-viridis", title="Poverty in Chicago Communities")+
+  tm_legend(legend.title.size = 1.7,legend.text.size = 1, legend.position = c("left", "bottom"))
+```
+
+Besides, maps can be viewed interactively by switching to view mode, using the command `tmap_mode("view")`
+
+```{r}
+tmap_mode("view")
+
+tm_shape(chitown)+tm_borders(lwd = 2, col = "white", alpha = .4)+
+  tm_polygons("poverty", style="quantile", alpha=0.7,palette = "-viridis", title="Poverty in Chicago Communities")+
+  tm_legend(legend.title.size = 1.7,legend.text.size = 1, legend.position = c("left", "bottom"))
+```
+
+It is also possible to show more information in your map by choosing variables using `popu.vars`. Finally, if you want to change the colors, choose a different `palette` ([here](https://bookdown.org/rdpeng/exdata/images/color-unnamed-chunk-11-1.png) you have some options)
+
+```{r}
+
+tm_shape(chitown)+tm_borders(lwd = 2, col = "white", alpha = .4)+
+  tm_polygons("poverty", style="quantile", alpha=0.7,palette = "YlGnBu", 
+              title="Poverty in Chicago Communities",id="community",
+              popup.vars=c("Airbnb Prices"="price_pp","Number of Airbnb spots"="num_spots",
+                           "Total Population"="population"))+
+  tm_legend(legend.title.size = 1.7,legend.text.size = 1, legend.position = c("left", "bottom"))+
+ tm_basemap(server="OpenStreetMap",alpha=0.5)
+```
+
+## Tmap + Tidycensus
+
+Using tidycensus with the option `geometry = T`, one can get coordinates of the desired areas together with Census information. Let's try the commuting times per counties in the U.S. for 2009-2013, from the American Community Survey - 5 year. First, check the dataset `acs5/profile`. 
+
+```{r, include=T}
+require(tidycensus)
+var<-load_variables(2013, dataset = "acs5/profile")
+head(var)
+```
+
+You are looking for `COMMUTING TO WORK` and `mean travel time`. The variable that corresponds to the average travel time to work is `DP03_0025`. Load it with `geometry=T` to get the coordinates for counties. Also, use `shift_geo = T` to place Alaska at the bottom of the map.  
+
+```{r, include=T}
+workers_time<-get_acs(geography = "county", 
+                      variables = c(average_time="DP03_0025"), 
+                      sumfile="acs5/profile",
+                      year=2013,
+                      geometry = T,
+                      shift_geo = T,
+                      output="wide")
+```
+
+Now, use `tmap` to plot `average_timeE` in a quantile map:
+
+```{r}
+tmap_mode("plot")
+tm_shape(workers_time)+tm_borders(lwd = 2, col = "white", alpha = .4)+
+tm_polygons("average_timeE", style="quantile",palette = "BuPu",
+              title="Commuting Time")+
+tm_legend(legend.title.size = 1,legend.text.size = .8, 
+              legend.position =c("left", "top"))+
+tm_layout(title="Average Commuting Time in U.S. Counties", 
+            title.position = c("center", "top"),
+            title.size = 1.1)
+```
+
+Finally, you can adjust the margins inside the frame and have more space between the legend and the map. Just add one more line to calibrate the `inner.margins`. The order is bottom, left, top and right. The default value is .02, and I am increasing the space on the left and at the top.
+
+```{r}
+tm_shape(workers_time)+tm_borders(lwd = 2, col = "white", alpha = .4)+
+tm_polygons("average_timeE", style="quantile",palette = "YlGnBu",
+              title="Commuting Time")+
+tm_legend(legend.title.size = 1.2,legend.text.size = 1, 
+              legend.position =c("left", "top"))+
+tm_layout(title="Average Commuting Time in U.S. Counties", 
+            title.position = c("center", "top"),
+            title.size = 1.1)+
+tm_layout(inner.margins = c(0.02, 0.15, 0.10, 0.02))
+
+```
+
+
+

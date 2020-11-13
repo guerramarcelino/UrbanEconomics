@@ -1,0 +1,97 @@
+---
+title: "Intro to R"
+author: "Marcelino Guerra"
+date: "Last update: 8/31/2020"
+abstract: Lecture notes on how to import files, merge, filter and summarize datasets.  
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+options(width = 1000)
+```
+
+## Working with .csv and .RDS files
+
+The first step is to set up your working directory. To organize things better, I will create a new folder in the Desktop called Lab1. Then I will change my working directory using `setwd()`. All the datasets that I am using are inside of the folder `Lab1`. 
+```{r, include=T}
+setwd("C:/Users/User/Desktop/Lab1")
+```
+
+After that, you need to import the data to the R environment. The first one is the [Household Income](https://piazza.com/redirect/s3?bucket=uploads&prefix=paste%2Fjlcuq2vjsa37nw%2Ff017c7fa505fac343d1f9e57808d82d7dcaef3e648e9e0fa58ef8b80bf6dd29c%2FHHincome18.csv) dataset. It is a `.csv` file and you might want to use the function `read_csv()`, from the package [`readr`](https://readr.tidyverse.org/). Since all the packages we need belongs to tidyverse, I will use that library. For that dataset, you need one more step:
+
+```{r, include=T}
+library(tidyverse)
+HHincome<-read_csv("HHincome18.csv", col_names = TRUE) ## col_names is TRUE because all the columns have names in the first row
+
+```
+For example, to see the first values on that dataset, you can use the function `head()`. You can open a new tab using `View(HHincome)`.  
+
+```{r, include=T}
+head(HHincome)
+```
+Keeping this exercise going, there is a `.RDS` file storing [health indicators](https://github.com/guerramarcelino/UrbanEconomics/blob/master/Datasets/health.RDS?raw=true) of 3141 US counties. You may find more information about the meaning of variables [here](https://github.com/Yu-Group/covid19-severity-prediction/blob/master/data/list_of_columns.md) 
+```{r, include=T}
+health_data<-readRDS("health.RDS")
+View(health_data)
+```
+One possibility that you might want to explore is the creation of new variables. For instance, the column `#EligibleforMedicare2018` refers to the number of people eligible for Medicare per county in 2018. You also have the estimated 2018 population (`PopulationEstimate2018`), so it is possible to create a variable `% of people eligible for Medicare` - I am calling it `perc_Medicare`. The new variable will be placed last in your dataset (check it using `View(health_data)`). 
+
+```{r, include=T}
+health_data$perc_Medicare<-health_data$`#EligibleforMedicare2018`/health_data$PopulationEstimate2018
+head(health_data$perc_Medicare)
+```
+
+## Merging datasets
+
+In case you want to put the two datasets (income and health) together, you can use `join` function. There are some details here. First, you have 3,275 counties (rows) in `HHincome`, but only 3,141 counties in `health_data`. Here I will use `left_join` so I can restrict the merge to those 3,141 counties inside `health_data`. Check the other join types [here](https://dplyr.tidyverse.org/reference/join.html). Using the function `dim()` you realize that your new data has 3,141 rows and 91 columns. 
+
+```{r, include=T}
+full_data<-left_join(health_data, HHincome,by = "FIPStxt")
+dim(full_data)
+```
+
+
+## Subsetting/Filtering data 
+
+For now, we just want to work with population density per squared mile (`PopulationDensityperSqMile2010`) and median household income (`Median_Household_Income_2018`). Those to variables are placed in columns 19 and 91 (check your dataset). Since we do not need the rest of the data, I will just create a new one with those two variables and the name of counties (`area_name`) and state (`Stabr`). 
+
+```{r, include=T}
+sub_data<-full_data[c(90,89, 19,91)]
+head(sub_data)
+```
+
+With the new dataset, let's order it by the median household income values:
+
+```{r, include=T}
+arrange(sub_data, Median_Household_Income_2018)
+```
+As one can see, Wilcox county has the minimum value of household income in this sample. Using `filter` to work only with counties from Illinois:
+
+```{r, include=T}
+sub_data%>%filter(Stabr=="IL")%>%arrange(PopulationDensityperSqMile2010)
+```
+Hence, Pope County-IL had the lowest population density (per sq mile) in 2010.
+
+Another way to select variables while filtering results is the following:
+
+```{r, include=T}
+full_data%>% select("area_name", "Stabr","PopulationDensityperSqMile2010", "Median_Household_Income_2018")%>%filter(Stabr=="IL")%>%arrange(PopulationDensityperSqMile2010)
+```
+If you want to sort a variable in descending order, use `desc()`
+
+```{r, include=T}
+full_data%>% select("area_name", "Stabr","PopulationDensityperSqMile2010", "Median_Household_Income_2018")%>%filter(Stabr=="IL")%>%arrange(desc(PopulationDensityperSqMile2010))
+```
+
+## Summarizing data
+
+To get summary statistics by group, you need `group_by()` some variable (for our case, State), together with `summarize()`. For this exercise, we are summing all of the counties' ICU beds and Hospitals in each state.  
+
+```{r, include=T}
+full_data%>%group_by(State)%>%summarize(sumICU=sum(`#ICU_beds`, na.rm=T), sumHosp=sum(`#Hospitals`, na.rm=T))%>%arrange(desc(sumHosp))
+```
+**Now, try to get the total numbers of Hospitals and ICU beds per US region.**
+
+

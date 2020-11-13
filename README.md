@@ -1,14 +1,16 @@
 # UrbanEconomics
-ECON 414 Rlab sessions datasets
+ECON 414 Rlab sessions & datasets used in class
 
-**Rlab 1**
+---
+## R Labs
 
-[Intro to R](https://guerramarcelino.github.io/Econ414/lab1) 
+[**Intro to R**](https://guerramarcelino.github.io/Econ414/lab1)
 
-**Rlab 2**
+[**Dataviz with ggplot2**](https://guerramarcelino.github.io/Econ414/lab2)
 
-[Dataviz with ggplot2](https://guerramarcelino.github.io/Econ414/lab2)
+[**Mapping data with tmap + tidycensus**](https://guerramarcelino.github.io/Econ414/lab3)
 
-**Rlab 3**
+---
+## Final Project Tutorial
 
-[Mapping data with tmap](https://guerramarcelino.github.io/Econ414/lab3)
+TBA
