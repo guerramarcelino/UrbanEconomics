@@ -1,0 +1,92 @@
+---
+title: "Dissimilarity Index"
+author: "Marcelino Guerra"
+date: "Last update: 11/16/2020"
+abstract: Lecture notes on how to calculate the Racial Dissimilarity Index. 
+output: html_document
+---
+
+<style type="text/css">
+  body{
+  font-size: 13pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(include = TRUE)  # TRUE for solution; FALSE for questions set
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(message = FALSE)
+  knitr::opts_chunk$set(warning = FALSE)
+  knitr::opts_chunk$set(fig.height = 6, fig.width = 11, out.width = '100%', fig.align = "center")
+  options(width = 90)
+
+```
+
+## Getting data for Champaign-IL
+
+This exercise will use data from Champaign-IL neighborhoods that come from the American Community Survey 5-year estimates (2014-2018). The first step is to load the `"acs5/profile"` variables and find the codes related to racial composition information.
+
+```{r, include=T}
+library(tidycensus)
+var_2018<-load_variables(2018, "acs5/profile")
+#View(var_2018)
+```
+Use `View(var_2018)` to find the ones related to total, white, and black populations. You are looking for "Estimate!!RACE!!Total population", "Estimate!!HISPANIC OR LATINO AND RACE!!Total population!!Not Hispanic or Latino!!Black or African American alone" and "Estimate!!HISPANIC OR LATINO AND RACE!!Total population!!Not Hispanic or Latino!!White alone". There you have Blacks and Whites who declared a single race. 
+
+The `get_acs()` with `geometry=T` allows you to make maps if you want. I set `geography="tract"` to get data from census tracts (treated as neighborhoods here).  
+
+```{r, include=T, message=F, warning=F, results = FALSE}
+chambana <-get_acs(geography = "tract", 
+                   variables = c(total="DP05_0033",
+                                 black="DP05_0078", 
+                                 white="DP05_0077"), 
+                   state = "IL",
+                   county="Champaign County",
+                   geometry = TRUE,
+                   output="wide")
+```
+
+The following code sets the shares of whites and blacks in each census tract in Champaign County. 
+
+```{r, include=T}
+library(tidyverse)
+chambana<-chambana%>%
+          mutate(black_share=blackE/totalE,white_share=whiteE/totalE)
+
+max(chambana$black_share)
+```
+
+As one can see, there are no ghettos in Champaign when setting the threshold as 80% of minority share. And here is the map with the percentages of black population within the county:
+
+```{r, include=T}
+library(tmap)
+tmap_mode("view")
+tm_shape(chambana)+tm_borders(lwd = 1.2, col = "white", alpha = .4)+
+  tm_polygons("black_share", breaks=c(0,.2,.4,.6,.8,1), alpha=0.7,palette = "YlGnBu", 
+              title="Share of Black Population",id="NAME",
+              popup.vars=c("Share of Black Population"="black_share", "Share of White Population"="white_share", "Total Population"="totalE" ))+
+  tm_legend(legend.title.size = 1.7,legend.text.size = 1, legend.position = c("left", "bottom"))+
+  tm_basemap(server="OpenStreetMap",alpha=0.5)
+```
+
+Here is the Racial Dissimilarity Index formula:
+
+
+$$ RDI= \frac{1}{2}\sum_{i=1}^{n}  |\underbrace{\frac{black_{i}}{black_{total}}}_\text{X}-\underbrace{\frac{white_{i}}{white_{total}}}_\text{Y}| $$
+
+where $\frac{black_{i}}{black_{total}}$ is the number of black people in a tract divided by the total of blacks in the area (in our case, the entire county). $\frac{white_{i}}{white_{total}}$ is the number of whites in a neighborhood divided by the total of whites in the county. Take the **absolute value** of this difference for each census tract. Then, sum all those numbers and multiply by .5.
+
+Note that this formula is different from [White to Non-White Racial Dissimilarity Index calculated by FRED](https://fred.stlouisfed.org/series/RACEDISPARITY017019). If you replace blacks with nonwhites in the formula above, you get very similar numbers to FRED data. To get the nonwhites, you need to take the difference between the total population and the white population.
+
+```{r}
+tot_white<-sum(chambana$whiteE)
+tot_black<-sum(chambana$blackE)
+
+chambana$X<-chambana$blackE/tot_black
+chambana$Y<-chambana$whiteE/tot_white
+DI<-.5*sum(abs(chambana$X-chambana$Y))
+DI*100
+
+```
+
+The RDI for Champaign-IL county in 2014-2018 is 46.41.
