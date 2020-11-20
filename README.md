@@ -9,6 +9,8 @@ ECON 414 Rlab sessions & datasets used in class
 
 [**Mapping data with tmap + tidycensus**](https://guerramarcelino.github.io/Econ414/lab3)
 
+[**Racial Dissimilarity Index**](https://guerramarcelino.github.io/Econ414/lab4)
+
 ## Final Project Tutorial
 
 TBA
