@@ -1,0 +1,266 @@
+---
+title: | 
+  ![](ILlogo.jpg){width=.2in}
+  
+  | ECON 414: Urban Economics
+  
+  | Homework 2
+author: "Marcelino Guerra (mguerra3)"
+date: '9/22/2020'
+output:
+  pdf_document:
+    extra_dependencies: ["cancel", "amsmath", "amssymb", "float"]
+    toc: yes
+    toc_depth: 3
+geometry: margin=1.2in
+urlcolor: blue
+fontfamily: mathpazo
+fontsize: 11pt
+header-includes:
+   - \linespread{1.05}
+---
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(include = TRUE)  # TRUE for solution; FALSE for questions set
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(message = FALSE)
+  knitr::opts_chunk$set(warning = FALSE)
+  knitr::opts_chunk$set(fig.height = 5, fig.width = 7, out.width = '60%', fig.align = "center")
+  knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
+  options(width = 100)
+```
+
+```{css, echo=FALSE}
+.solution {
+background-color: #CCDDFF;
+}
+```
+
+# Question 1 - Monocentric city model [45 Points] 
+
+## a) The city's edge [5 points]
+**Suppose that the urban land rent function is given by $r(x)=100-x$, where $x$ is the distance in miles to the city's Central Business District. The agricultural sector is willing to pay $r_{a}=20$ for productive land. Compute the radius $\bar{x}$ and the urban land area (the area of a circle with radius $\bar{x}$).** 
+
+```{r, echo=F, fig.cap="The city's edge"}
+library(tidyverse)
+library(ggthemes)
+
+df<-data.frame(x1=0, x2=150, y1=0, y2=150)
+g1<-ggplot()+
+  geom_point()+
+  theme_economist_white(gray_bg = F)+
+  theme(text = element_text(size=15))
+
+g1+   geom_abline(aes(intercept = 100, slope = -1, colour="Developers"), size=1.2)+
+  geom_segment(aes(x=x1, xend=x2, y=20, yend=20, colour="Famers"), 
+               data=df, size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0,50,100,120,140)) +
+  scale_y_continuous(limits = c(0,130), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100,120)) +
+  xlab("Distance from CBD") + 
+  ylab("Bid rent curve")+
+  labs(color='')
+```
+
+
+## b) A change in total population [10 points]
+
+**i) Now suppose there is a population increase in our hypothetical monocentric city. What happens with prices and quantity of floor rented by consumers? Document the whole process that culminates with the shift of the developer's bid rent curve upwards. What happens with the ratio of capital/land used by builders? What is the consequence of that in terms of building-height and population density?** 
+
+**ii)  Assume that developers' new land rent curve is $r(x)=110-x$ (red line). What is the new city's edge?**   
+
+```{r, echo=F, fig.cap="The effect of population increase"}
+g1+   geom_abline(aes(intercept = 100, slope = -1, colour="Developers old"), size=1.2)+
+  geom_abline(aes(intercept = 110, slope = -1, colour="Developers new"), size=1.2)+
+  geom_segment(aes(x=x1, xend=x2, y=20, yend=20, colour="Famers"), 
+               data=df, size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0,50,100,120,140)) +
+  scale_y_continuous(limits = c(0,130), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100,110,120)) +
+  xlab("Distance from CBD") + 
+  ylab("Bid rent curve")+
+  labs(color='')
+```
+
+
+
+## c) A change in commuting costs [15 points]
+**i)  Consider the effect of an increase in the commuting-cost parameter $t$. Suppose that initially, the city was in equilibrium just as in a). However, the local government decided to raise the metro ticket price to cover the city's network of radial roads' maintenance costs - remember, we assume that consumers use the same transport mode. What happens when $t$ increases? Write down the whole process that makes the land rent curve to rotate. What happens in downtown? What changes in the suburb?** 
+
+```{r, echo=F, fig.cap="The effect of an increase in commuting costs"}
+g1+  geom_abline(aes(intercept = 100, slope = -1, colour="Developers old"), size=1.2)+
+  geom_abline(aes(intercept = 120, slope = -2, colour="Developers new"), size=1.2)+ 
+   geom_segment(aes(x=x1, xend=x2, y=20, yend=20, colour="Famers"), 
+               data=df, size=1.2)+
+    scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                       breaks=c(0,50,100,120,140)) +
+  scale_y_continuous(limits = c(0,130), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100,110,120)) +
+  xlab("Distance from CBD") + 
+  ylab("Bid rent curve")+
+  labs(color='')
+```
+
+**ii) Assume the new land rent function of developers is $r(x)=120-2x$. What is the new city's edge? What is the value of $x$ (distance from the CBD) when the old and new developers' land rent function intersect (call it $\hat{x}$)? What is happening with the rent bids from 0 to $\hat{x}$ and from $\hat{x}$ to the new $\bar{x}$, compared to the old rent curve? Finally, what is the meaning of $\hat{x}$?**
+
+
+## d) Durable housing & Growing and declining cities [15 points]
+
+**i)Consider an extreme version of the durable housing we saw in class - the first 60 houses built in a city last forever. The demand curve function is given by $P=70-\frac{2}{3}H$. The cities start in equilibrium with 60 houses. Compute the equilibrium price in this situation. ** 
+
+**Now, suppose a factory closed its doors and all the employers were fired. Without a job, they decided to leave the city. Due to this negative shock the demand $D_{2}$ decreases to $P=50-\frac{2}{3}H$. What is the new equilibrium price?**
+
+```{r, echo=F, fig.cap="Declining cities", out.width = '80%',fig.width = 9}
+library(patchwork)
+
+g2<-g1+geom_segment(aes(x=60, xend=120, y=30, yend=60, colour="Supply in city A"), 
+                data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=100, y=30, yend=90, colour="Supply in city B"), 
+               data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=60, y=0, yend=30), 
+               data=df, size=1.3)+
+  geom_abline(aes(intercept = 70, slope = -2/3, colour="Demand curve"), size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0,20, 40, 60, 80,100,120,140)) +
+  scale_y_continuous(limits = c(0,110), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100)) +
+  xlab("Housing Quantity") + 
+  ylab("Housing Price")+
+  labs(color='')+
+  annotate("text", x = 100, y = 10, label = "D1")
+
+
+g3<-g1+geom_segment(aes(x=60, xend=120, y=30, yend=60, colour="Supply in city A"), 
+                data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=100, y=30, yend=90, colour="Supply in city B"), 
+               data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=60, y=0, yend=30), 
+               data=df, size=1.3)+
+  geom_abline(aes(intercept = 50, slope = -2/3, colour="Demand curve"), size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0,20, 40, 60, 80,100,120,140)) +
+  scale_y_continuous(limits = c(0,110), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100)) +
+  xlab("Housing Quantity") + 
+  ylab("Housing Price")+
+  labs(color='')+
+  annotate("text", x = 75, y = 10, label = "D2")
+
+combined <- g2 + g3 & theme(legend.position = "top")
+combined + plot_layout(guides = "collect")
+```
+
+
+**ii) Assume there is a positive shock and the new demand $D_{3}$ is characterized by $P=100-\frac{2}{3}H$. As you can see, cities A and B have different supply curves. For new housing, city's A supply curve is given by $H=2P$, and city B has a supply curve equal to $H=\frac{2}{3}P+40$. Compute the respective equilibrium quantities and prices for both cities (round to the nearest integer). Do you have an explanation of why would the supply curves be different in different cities? Which supply curve would characterize Houston, and which one can be associated with Santa Clara (Silicon Valley)?**
+
+```{r, echo=F, fig.cap="Growing cities", out.width = '80%',fig.width = 9}
+
+g4<-g1+geom_segment(aes(x=60, xend=120, y=30, yend=60, colour="Supply in city A"), 
+                data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=100, y=30, yend=90, colour="Supply in city B"), 
+               data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=60, y=0, yend=30), 
+               data=df, size=1.3)+
+  geom_abline(aes(intercept = 70, slope = -2/3, colour="Demand curve"), size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0,20, 40, 60, 80,100,120,140)) +
+  scale_y_continuous(limits = c(0,110), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100)) +
+  xlab("Housing Quantity") + 
+  ylab("Housing Price")+
+  labs(color='')+
+   annotate("text", x = 100, y = 10, label = "D1")
+
+
+g5<-g1+geom_segment(aes(x=60, xend=120, y=30, yend=60, colour="Supply in city A"), 
+                data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=100, y=30, yend=90, colour="Supply in city B"), 
+               data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=60, y=0, yend=30), 
+               data=df, size=1.3)+
+  geom_abline(aes(intercept = 100, slope = -2/3, colour="Demand curve"), size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0,20, 40, 60, 80,100,120,140)) +
+  scale_y_continuous(limits = c(0,110), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100)) +
+  xlab("Housing Quantity") + 
+  ylab("Housing Price")+
+  labs(color='')+
+   annotate("text", x = 140, y = 12, label = "D3")
+
+combined <- g4 + g5 & theme(legend.position = "top")
+combined + plot_layout(guides = "collect")
+```
+
+# Question 2 - Land-use regulation [30 Points]
+
+## a) The political economy of UGB [15 points]
+
+
+**One can argue that the real motive for an urban growth boundary is not related to correct a market failure, but to artificially increase land prices. Now, suppose that the landowners in our hypothetical monocentric city can restrict $\bar{x}$ to 65 miles (black vertical bar in Figure 6).** 
+
+**i) Describe the process that drives the bid rent curve to shift upwards after implementing a UGB and its consequence (i.e., what is happening with prices, a quantity of floor space, building-heights, and population density in between Figure 1 and Figure 6).**
+
+
+```{r, echo=F, fig.cap="Urban growth boundary"}
+g1+ geom_abline(aes(intercept = 100, slope = -1, colour="Developers old"), size=1.2)+
+  geom_segment(aes(x=x1, xend=x2, y=20, yend=20, colour="Famers"), 
+               data=df, size=1.2)+
+   geom_abline(aes(intercept = 110, slope = -1, colour="Developers new"), size=1.2)+
+  geom_vline(aes(xintercept=65), size=1.2)+
+    scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                       breaks=c(0,50,65,100,120,140)) +
+  scale_y_continuous(limits = c(0,130), expand = c(0, 0), breaks=c(0,20,40,60,80,100,110,120,130)) +
+  xlab("Distance from CBD") + 
+  ylab("Bid rent curve")+
+  labs(color='')
+```
+
+**ii) Suppose the new land rent curve for developers is $r(x)=110-x$ - the old curve is the same as in a), with the associated old $\bar{x}$. Calculate the rent loss due to the urban land restriction as well as the land-rent gain. In other words, compute the area associated with the land-rent loss (*hint:* the area *V* in the lecture notes is now a triangle), and the area related to the land-rent gain (*hint:* the area *S* is a parallelogram). Is the restriction beneficial to the landlords?** 
+
+## b) Open space as an amenity [10 points]
+**Assume that people enjoy open-space benefits from farmland, but the landowner does not consider that $b$ dollars benefit. Therefore, market failure makes the city's size suboptimal. Suppose that the city's edge's optimal size is $\bar{x}=65$, and the developers' bid rent curve behaves just like in a). What should be the $b$ dollars tax on the landowner's rent for the city to achieve its optimal size? **
+
+## c) Zoning: non-conforming uses [5 points]
+
+**One of the rationales behind zoning laws is to curb externalities. In this example, we will take a closer look at negative externalities generated by factories. Suppose the city is a rectangle composed of 10 lots (25x20). Factories occupy lots with shading lines, and the others represent the housing area. Without the noise and pollution generated by factories, every lot in this city would pay the same rent $r$ to the landowner (that also includes the lots with factories). However, due to the presence of those negative externalities, residential lots adjacent to factories pays half of the rent $r/2$. The spatial distribution of factories with and without zoning laws is displayed in Figure 2.2. How much (in %) is the negative externality reduced with the two factories located at the edge of the city, compared to the scenario without zoning laws? What is the increase in total rent received by the landowner in the presence of zoning, compared to no zoning?**
+
+
+```{r, echo=F, fig.cap="Zoning and Externalities", out.width = '80%',fig.width = 9}
+par(mfrow=c(1,2))
+plot(c(0, 100), c(0, 50), type= "n", xlab = "", ylab = "", main="No zoning")
+rect(0, 0, 100, 50, border = "black")
+rect(0,25,100,25)
+rect(0,0, 20, 50)
+rect(0,0, 40, 50)
+rect(40,0, 60, 50, density = 5)
+rect(0,0, 80, 50)
+
+plot(c(0, 100), c(0, 50), type= "n", xlab = "", ylab = "", main="With zoning")
+rect(0, 0, 100, 50, border = "black")
+rect(0,25,100,25)
+rect(0,0, 20, 50, density=5)
+rect(0,0, 40, 50)
+rect(40,0, 60, 50)
+rect(0,0, 80, 50)
+```
+
+# Question 3 - The great divergence  [25 Points]
+
+## a) The decline of manufacturing jobs and the role of innovation jobs [10 points]
+**In this question, we want to take a closer look at the manufacturing sector in the U.S. economy. This [data](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/manufacturing.xls) from FRED contains all employees in the from 1939 to 2020 (column PAYEMS), and all employees in the manufacturing sector (MANEMP) in thousands of persons. Compute the ratio of MANEMP/PAYEMS and store that as a column named `share`. After that, construct two line plots with the share of manufacturing jobs and the total number of manufacturing jobs from 1939 to 2018. What do you see, and what can explain this tendency? Why an increase in innovation jobs would matter in this context?**  
+
+
+
+## b) Your Neighbor's Education Affects your Salary [15 points]
+**Now, we want to explore the link between local human capital and salaries among U.S. metropolitan regions. Examining the data from the American Community Survey 2018 - 5 years using the package `tidycensus`, construct a scatter plot to show the relationship between the median earnings in the past 12 months for high school graduates in the 945 metropolitan areas and the share of the population 25 years and over that has a Bachelor degree. What are the main reasons for that relationship to hold?**
+
+***Hint:* load the variables from acs5/year 2018 first. Then, look for `median earnings in the past 12 months`, and get the name of the one that is labeled as `Total!!High school graduate`. After that, you need to get the total population and the entire population with a bachelor's degree. You are searching for `educational attainment for the population 25 years and over` with labels `!!Total`, `Total!!Bachelor's degree`, `Total!!Master's degree`, `Total!!Professional school degree`, `Total!!Doctorate degree`. Also, remember that your `geography` is metropolitan regions.**
+
+
+
+
+
+
