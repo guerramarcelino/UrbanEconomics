@@ -1,5 +1,6 @@
-# UrbanEconomics
-[ECON 414 - Urban Economics](https://guerramarcelino.github.io/econ414/) repository.
+# ECON 414 - Urban Economics
+
+[ECON 414 Fall 2020](https://guerramarcelino.github.io/econ414/) repository.
 
 ## R Labs
 
@@ -10,6 +11,8 @@
 [**Mapping data with tmap + tidycensus**](https://guerramarcelino.github.io/Econ414/lab3)
 
 [**Racial Dissimilarity Index**](https://guerramarcelino.github.io/Econ414/lab4)
+
+[**Exploratory Data Analysis**](https://guerramarcelino.github.io/Econ414/lab5)
 
 ## Homework
 
@@ -23,4 +26,4 @@
 
 ## Final Project
 
-TBA
+[Final Project Guidelines](https://guerramarcelino.github.io/econ414/project/)
