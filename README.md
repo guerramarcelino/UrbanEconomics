@@ -12,18 +12,18 @@
 
 [**Racial Dissimilarity Index**](https://guerramarcelino.github.io/Econ414/lab4)
 
-[**Exploratory Data Analysis**](https://guerramarcelino.github.io/Econ414/lab5)
+[**Exploratory Spatial Data Analysis**](https://guerramarcelino.github.io/Econ414/lab5)
 
 ## Homework
 
-[HW #1](https://guerramarcelino.github.io/Econ414/HW/HW1)
+[**HW #1**](https://guerramarcelino.github.io/Econ414/HW/HW1)
 
-[HW #2](https://guerramarcelino.github.io/Econ414/HW/HW2)
+[**HW #2**](https://guerramarcelino.github.io/Econ414/HW/HW2)
 
-[HW #3](https://guerramarcelino.github.io/Econ414/HW/HW3)
+[**HW #3**](https://guerramarcelino.github.io/Econ414/HW/HW3)
 
-[HW #4](https://guerramarcelino.github.io/Econ414/HW/HW4)
+[**HW #4**](https://guerramarcelino.github.io/Econ414/HW/HW4)
 
 ## Final Project
 
-[Final Project Guidelines](https://guerramarcelino.github.io/econ414/project/)
+[**Final Project Guidelines**](https://guerramarcelino.github.io/econ414/project/)
