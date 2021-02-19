@@ -4,9 +4,9 @@
 
 ## R Labs
 
-[**Intro to R**](https://guerramarcelino.github.io/Econ414/lab1)
+[**Intro to R**](https://guerramarcelino.github.io/Econ414/Rlabs/lab1)
 
-[**Dataviz with ggplot2**](https://guerramarcelino.github.io/Econ414/lab2)
+[**Dataviz with ggplot2**](https://guerramarcelino.github.io/Econ414/Rlabs/lab2)
 
 [**Mapping data with tmap + tidycensus**](https://guerramarcelino.github.io/Econ414/lab3)
 
