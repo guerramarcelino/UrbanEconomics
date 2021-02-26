@@ -1,18 +1,14 @@
 # ECON 414 - Urban Economics
 
-[ECON 414 Fall 2020](https://guerramarcelino.github.io/econ414/) repository.
+[ECON 414 Spring 2021](https://guerramarcelino.github.io/econ414/) repository.
 
 ## R Labs
 
-[**Intro to R**](https://guerramarcelino.github.io/Econ414/Rlabs/lab1)
+[**Intro to tidyverse**](https://guerramarcelino.github.io/Econ414/Rlabs/lab1)
 
 [**Dataviz with ggplot2**](https://guerramarcelino.github.io/Econ414/Rlabs/lab2)
 
-[**Mapping data with tmap + tidycensus**](https://guerramarcelino.github.io/Econ414/lab3)
-
-[**Racial Dissimilarity Index**](https://guerramarcelino.github.io/Econ414/lab4)
-
-[**Exploratory Spatial Data Analysis**](https://guerramarcelino.github.io/Econ414/lab5)
+[**Intro to tidycensus**](https://guerramarcelino.github.io/Econ414/Rlabs/lab2)
 
 ## Homework
 
@@ -20,10 +16,8 @@
 
 [**HW #2**](https://guerramarcelino.github.io/Econ414/HW/HW2)
 
-[**HW #3**](https://guerramarcelino.github.io/Econ414/HW/HW3)
 
-[**HW #4**](https://guerramarcelino.github.io/Econ414/HW/HW4)
 
 ## Final Project
 
-[**Final Project Guidelines**](https://guerramarcelino.github.io/econ414/project/)
+[**Final Project Guidelines (Fall 2020)**](https://guerramarcelino.github.io/econ414/project/)
