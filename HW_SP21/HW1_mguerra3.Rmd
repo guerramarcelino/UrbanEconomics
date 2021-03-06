@@ -1,0 +1,82 @@
+---
+title: | 
+  ![](ILlogo.jpg){width=.2in}
+  
+  | ECON 414: Urban Economics
+  
+  | Homework 1
+author: "Your Name (yournetid)"
+date: '2/3/2021'
+output:
+  pdf_document:
+    extra_dependencies: ["cancel", "amsmath", "amssymb"]
+    toc: yes
+    toc_depth: 2
+geometry: margin=1.2in
+urlcolor: blue
+fontfamily: mathpazo
+fontsize: 11pt
+header-includes:
+   - \linespread{1.05}
+---
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(include = TRUE)  # TRUE for solution; FALSE for questions set
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(message = FALSE)
+  knitr::opts_chunk$set(warning = FALSE)
+  knitr::opts_chunk$set(fig.height = 8, fig.width = 11, out.width = '60%', fig.align = "center")
+  options(width = 90)
+```
+
+```{css, echo=FALSE}
+.solution {
+background-color: #CCDDFF;
+}
+```
+
+## 1 Importing and merging datasets [10 points]
+
+In this homework, we'll adapt data from Chicago-IL communities. The original source is the [GeoDa Data and Lab](https://geodacenter.github.io/data-and-lab/). The first dataset [Airbnb.RDS](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/airbnb.RDS) refers to Airbnb rentals, socioeconomic indicators, and crime by community area in Chicago. The [Communities.xls](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/communities.xls) dataset contains health and socioeconomic indicators for the 77 community areas of Chicago, 2012-2014. 
+
+a. Import both datasets and use the function `head()` to see only the first five rows from each one. [This](https://readxl.tidyverse.org/) might help you to import the `Communities` data.   
+
+b. Merge the datasets using the function `full_join()`. What is the dimension of your new dataset? What variables do they have in common (variables with the same column name)? 
+
+
+## 2 Subsetting, creating new variables & summarizing information [65 Points]
+
+**Important: You can find more information about the variables in the `Airbnb` and `Communities` datasets [here](https://geodacenter.github.io/data-and-lab//airbnb_Chicago-2015/) and [here](https://geodacenter.github.io/data-and-lab//comarea_vars/). I added two more variables to the `Airbnb` data: `area` and `dist`. They represent the total community area and the distance (in km) from the community to Chicago downtown, respectively.** 
+
+a. You want to work only with the following columns: `community`, `price_pp`, `num_spots`, `rev_rating`, `PerCInc14` , `num_theft`, `FirearmM` ,`unemployed`, `harship_in`, `Pop2014`, `BirthRate`, `Over65`, `dist`, and `area`. Select only those variables and store them in a new data frame. [5 points]
+
+b. Create the new variable `theft_rate` dividing the total number of thefts by the **population in 2014**. [5 points]
+
+c. First, divide the total population in 2014 by the community's area to get values for population density (number of people per square mile). Then, create the new variable `logdens`, taking the natural logarithm of population density.  [5 points]
+
+d. Filter your new dataset to identify **Central Chicago**. In other words, you want to filter communities within $3 km$ from Chicago downtown.  
+ What is the average number of Airbnb spots in Central Chicago? What are the average Airbnb prices, per capita income, theft rate, firearm-related deaths, population density, and birth rate in Central Chicago? [15 points]
+
+e. Compare those numbers you just got from Central Chicago (Airbnb spots and prices, income, crime, and birth rate) with the values from Central Chicago adjacent communities - communities that share a border with Central Chicago. Discuss the results. [15 points]  
+
+f. Finally, compare the values for the same variables in Central Chicago with the average numbers from "Far from downtown" - the communities that have a distance from downtown higher than 19 km. [15 points]
+
+g.  Do you have any explanation for the presence of birth rate in d., e., and f. (i.e  did you expect to find a relationship between birth rate and distance from downtown)? [5 points]
+
+## 3 Scatter plots [35 Points]
+
+a. One of the regularities within cities predicted by the Alonso-Muth-Mills model is the decline of population density with distance to the Central Business District. Build a scatterplot to show that this is happening in Chicago, i.e., there is a negative relationship between `logdens` (y-axis) and `dist` (x-axis) in our dataset. [10 points] 
+
+
+b. Now, let's take a look at the relationship between Airbnb prices and the distance to Downtown Chicago. Construct a scatter plot between those variables (y-axis prices and x-axis distance). What do you see? What is the reasoning behind this relationship? [10 points] 
+
+\begin{center}
+\Large\textbf{Correlation x Causality}
+\end{center}
+
+c. Finally, plot the relationship between Airbnb prices (y-axis) and theft rate (x-axis). What do you see? Do you have an explanation for that relationship to hold? [15 points]
+
+
+
+
+

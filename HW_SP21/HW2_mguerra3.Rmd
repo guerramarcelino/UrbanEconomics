@@ -1,0 +1,235 @@
+---
+title: | 
+  ![](ILlogo.jpg){width=.2in}
+  
+  | ECON 414: Urban Economics
+  
+  | Homework 2
+author: "Your name (netid)"
+date: '2/19/2021'
+output:
+  pdf_document:
+    extra_dependencies: ["cancel", "amsmath", "amssymb", "float"]
+    toc: yes
+    toc_depth: 3
+geometry: margin=1.2in
+urlcolor: blue
+fontfamily: mathpazo
+fontsize: 11pt
+header-includes:
+   - \linespread{1.05}
+---
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(include = TRUE)  # TRUE for solution; FALSE for questions set
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(message = FALSE)
+  knitr::opts_chunk$set(warning = FALSE)
+  knitr::opts_chunk$set(fig.height = 5, fig.width = 7, out.width = '60%', fig.align = "center")
+  knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
+  options(width = 100)
+```
+
+```{css, echo=FALSE}
+.solution {
+background-color: #CCDDFF;
+}
+```
+
+# Monocentric city model [45 Points] 
+
+## The city's edge [10 points]
+
+Suppose that the urban land rent function is given by $r(x)=80-x$, where $x$ is the distance in miles to the city's Central Business District. The agricultural sector is willing to pay $r_{a}=20$ for productive land. Compute the radius $\bar{x}$ and the urban land area (the area of a circle with radius $\bar{x}$). Finally, what is the population density in this urban area? Assume that the city has 100,000 inhabitants. 
+
+```{r, echo=F, fig.cap="The city's edge",  out.width = '70%'}
+library(tidyverse)
+library(ggthemes)
+library(plotly)
+df<-data.frame(x1=0, x2=150, y1=0, y2=150)
+g1<-ggplot()+
+  geom_point()+
+  theme_economist_white(gray_bg = F)+
+  theme(text = element_text(size=15))
+
+g1+   geom_abline(aes(intercept = 80, slope = -1, colour="Developers"), size=1.2)+
+  geom_segment(aes(x=x1, xend=x2, y=20, yend=20, colour="Famers"), 
+               data=df, size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0, 20, 50,100,120,140)) +
+  scale_y_continuous(limits = c(0,130), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100,120)) +
+  xlab("Distance from CBD") + 
+  ylab("Bid rent curve")+
+  labs(color='')+
+  scale_color_manual(values = c("#00AFBB",  "#FC4E07"))
+```
+
+
+
+
+## A change in commuting costs [15 points]
+
+**i)**  Let's consider the effect of an increase in the commuting-cost parameter $t$. Suppose that initially, the city was in equilibrium just as in 1.1. However, the local government decided to raise the metro ticket price to cover the city's network of radial roads' maintenance costs - remember, we assume that consumers use the same transport mode. What happens when $t$ increases? Write down the whole process that makes the land rent curve rotate. What happens in downtown? What changes in the suburb?  
+
+**ii)** Assume the new land rent function of developers after the increase in $t$ is $r(x)=120-2x$. What is the new city's edge $\bar{x}$? What is the value of $x$ (distance from the CBD) when the old and new developers' land rent function intersect (call it $\hat{x}$)? What is happening with the rent bids from 0 to $\hat{x}$ and from $\hat{x}$ to the new $\bar{x}$, compared to the old rent curve? Finally, what is the meaning of $\hat{x}$?
+
+```{r, echo=F, fig.cap="The effect of an increase in commuting costs",  out.width = '70%'}
+g1+  geom_abline(aes(intercept = 80, slope = -1, colour="Developers old"), size=1.2)+
+  geom_abline(aes(intercept = 120, slope = -2, colour="Developers new"), size=1.2)+ 
+   geom_segment(aes(x=x1, xend=x2, y=20, yend=20, colour="Famers"), 
+               data=df, size=1.2)+
+    scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                       breaks=c(0,50,100,120,140)) +
+  scale_y_continuous(limits = c(0,130), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100,110,120)) +
+  xlab("Distance from CBD") + 
+  ylab("Bid rent curve")+
+  labs(color='')+
+  scale_color_manual(values = c("#E7B800","#00AFBB",  "#FC4E07"))
+```
+
+## Single-family and multi-family homes in Chicago-IL [20 points]
+
+Last semester, one of the ECON 414 students shared this article on Piazza: ["Chicago area has the largest homes among US metros — but apartment sizes are shrinking"](https://www.chicagotribune.com/real-estate/ct-real-estate-bigger-homes-chicago-tiny-apartments-tt-1001-20201005-wk2gzewn6jdn7fh3lvzwvpa3ju-story.html). Reading the article, you will find interesting information such as:
+
+''**Among the country’s 20 largest metropolitan areas, Chicago takes first place for having the biggest homes. [...] When it comes to apartment sizes though, the city falls toward the bottom of the list, with its average apartment growing smaller over time.**''
+
+[Here](https://guerramarcelino.github.io/Econ414/HW/HW2#single-family-and-multi-family-homes-in-chicago-il-20-points) you find a table with some data about house and apartment sizes across US metro areas in 2010 and 2019. And here is the question: can you find an explanation for that trend basing your answer on what you know about the Monocentric City Model? 
+
+**Hint**: think about *i)* the developers' perspective (e.g., why do they build up?) *ii)* the intercity analysis (for example, the effects of an increase in population) *iii)* the across cities analysis - e.g., downtown Chicago has taller buildings compared to central Phoenix. Finally, it would be best if you borrow some ideas from the real estate agent Sam Jenkins. After all, he has skin in the game. 
+
+# Monocentric city model - Extensions [55 Points] 
+
+## Durable housing in growing and declining cities [15 points]
+
+**i)** Consider an extreme version of the durable housing we saw in class - the first 60 houses built in a city last forever. The demand curve function is given by $P=70-\frac{2}{3}H$. The cities start in equilibrium with 60 houses. Compute the equilibrium price in this situation. 
+
+**ii)** Now, suppose a factory closed its doors and all the employers were fired. Without a job, they decided to leave the city. Due to this negative shock the demand $D_{2}$ decreases to $P=50-\frac{2}{3}H$. What is the new equilibrium price?
+
+```{r, echo=F, fig.cap="Declining cities", out.width = '80%',fig.width = 9}
+library(patchwork)
+
+g2<-g1+geom_segment(aes(x=60, xend=120, y=30, yend=60, colour="Supply in city A"), 
+                data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=100, y=30, yend=90, colour="Supply in city B"), 
+               data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=60, y=0, yend=30), 
+               data=df, size=1.3)+
+  geom_abline(aes(intercept = 70, slope = -2/3, colour="Demand curve"), size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0,20, 40, 60, 80,100,120,140)) +
+  scale_y_continuous(limits = c(0,110), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100)) +
+  xlab("Housing Quantity") + 
+  ylab("Housing Price")+
+  labs(color='')+
+  annotate("text", x = 100, y = 10, label = "D1")+
+  scale_color_manual(values = c("#E7B800","#00AFBB",  "#FC4E07"))
+
+
+g3<-g1+geom_segment(aes(x=60, xend=120, y=30, yend=60, colour="Supply in city A"), 
+                data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=100, y=30, yend=90, colour="Supply in city B"), 
+               data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=60, y=0, yend=30), 
+               data=df, size=1.3)+
+  geom_abline(aes(intercept = 50, slope = -2/3, colour="Demand curve"), size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0,20, 40, 60, 80,100,120,140)) +
+  scale_y_continuous(limits = c(0,110), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100)) +
+  xlab("Housing Quantity") + 
+  ylab("Housing Price")+
+  labs(color='')+
+  annotate("text", x = 75, y = 10, label = "D2")+
+  scale_color_manual(values = c("#E7B800","#00AFBB",  "#FC4E07"))
+
+combined <- g2 + g3 & theme(legend.position = "top")
+combined + plot_layout(guides = "collect")
+```
+
+
+**iii)** Assume there is a positive shock and the new demand $D_{3}$ is characterized by $P=100-\frac{2}{3}H$. As you can see, cities A and B have different supply curves. For new housing, city's A supply curve is given by $H=2P$, and city B has a supply curve equal to $H=\frac{2}{3}P+40$. Compute the respective equilibrium quantities and prices for both cities (round to the nearest integer). Do you have an explanation of why would the supply curves be different in different cities? Which supply curve would characterize Houston, and which one can be associated with Santa Clara (Silicon Valley)?
+
+```{r, echo=F, fig.cap="Growing cities", out.width = '80%',fig.width = 9}
+
+g4<-g1+geom_segment(aes(x=60, xend=120, y=30, yend=60, colour="Supply in city A"), 
+                data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=100, y=30, yend=90, colour="Supply in city B"), 
+               data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=60, y=0, yend=30), 
+               data=df, size=1.3)+
+  geom_abline(aes(intercept = 70, slope = -2/3, colour="Demand curve"), size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0,20, 40, 60, 80,100,120,140)) +
+  scale_y_continuous(limits = c(0,110), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100)) +
+  xlab("Housing Quantity") + 
+  ylab("Housing Price")+
+  labs(color='')+
+   annotate("text", x = 100, y = 10, label = "D1")+
+  scale_color_manual(values = c("#E7B800","#00AFBB",  "#FC4E07"))
+
+
+g5<-g1+geom_segment(aes(x=60, xend=120, y=30, yend=60, colour="Supply in city A"), 
+                data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=100, y=30, yend=90, colour="Supply in city B"), 
+               data=df, size=1.2)+
+  geom_segment(aes(x=60, xend=60, y=0, yend=30), 
+               data=df, size=1.3)+
+  geom_abline(aes(intercept = 100, slope = -2/3, colour="Demand curve"), size=1.2)+
+  scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                     breaks=c(0,20, 40, 60, 80,100,120,140)) +
+  scale_y_continuous(limits = c(0,110), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100)) +
+  xlab("Housing Quantity") + 
+  ylab("Housing Price")+
+  labs(color='')+
+   annotate("text", x = 140, y = 12, label = "D3")+
+  scale_color_manual(values = c("#E7B800","#00AFBB",  "#FC4E07"))
+
+combined <- g4 + g5 & theme(legend.position = "top")
+combined + plot_layout(guides = "collect")
+```
+
+## Two income groups [15 points]
+
+Suppose there are two income groups in the hypothetical monocentric city. A typical wealthy citizen earns 70,000 dollars per year, and poor residents earn 30,000. Assume that both groups have the same out-of-pocket commuting costs $tx$, and spend 10,000 with good $c$ per year. 
+
+**i)** Write down the budget constraints for both groups.
+
+
+**ii)** We know that both groups' housing price curves should cross at some point $\hat{x}$. Otherwise, one group would outbid the other everywhere in the city, and there would be only high-income (or low-income) residents there. We also know that, at $\hat{x}$, both groups pay the same price per square foot, i.e., $p_{R}=p_{P}=p$. Write down the quantities of floor space that high-income and low-income residents would consume at $\hat{x}$, and show that $q_{R}$ is indeed higher than $q_{P}$. Also, what is the implication of that in terms of housing-price curve slopes for both groups? 
+
+**Hint:** you want to write $q_{R}$ and $q_{P}$ as a function of $t\hat{x}$ and $p$.
+
+**iii)** Let's say the city's edge is $\bar{x}=60$. Suppose the housing-price curves for low-income and high income are $p_{P}(x)=120-2x$ and $p_{R}(x)=100-x$, respectively. Find the distance $\hat{x}$ that separates the city between rich and poor residents. Finally, what is the total suburban land area? 
+
+
+```{r, echo=F, fig.cap="Two income groups",  out.width = '70%'}
+g1+  geom_abline(aes(intercept = 100, slope = -1, colour="High-Income"), size=1.2)+
+  geom_abline(aes(intercept = 120, slope = -2, colour="Low-Income"), size=1.2)+     scale_x_continuous(limits = c(0,150), expand = c(0, 0),
+                       breaks=c(0,50,100,120,140)) +
+  scale_y_continuous(limits = c(0,130), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80,100,110,120)) +
+  xlab("Distance from CBD") + 
+  ylab("Housing-price curve")+
+  labs(color='')+
+  scale_color_manual(values = c("#00AFBB",  "#FC4E07"))
+```
+
+## Household income and distance from the center [25 points]
+
+You already know that one of the predictions of the Monocentric City Model with two income groups with the same commuting costs is that the high-income residents will live in the suburbs, and the low-income group will locate at the city center. [Here](https://guerramarcelino.github.io/Econ414/HW/HW2#household-income-and-distance-from-the-center-25-points) is a map of 2,210 [census tracts](https://en.wikipedia.org/wiki/Census_tract) within the Chicago-Naperville-Elgin (IL-IN-WI) metro area. The information about `Median Household Income` is coming from the American Community Survey 2015-19. To make things simpler, consider the Navy Pier as the metro area's Central Business District.
+
+
+**i)** (Overall) Does this pattern of Median Household Income within Chicago metro area agree with the prediction from the Monocentric city model? 
+
+**ii)** What do you see in the neighborhoods close to the Navy Pier? Does the model have an explanation for this pattern? 
+
+**iii)** [Here](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/chi_inc.RDS) you have ACS 2015-19 data about the percentage of people living below the poverty line in census tracts within Chicago metro area. Let's take a look at the relationship between poverty levels and distance from the city center constructing a scatter plot with those variables (y-axis `perc_pov` and x-axis `dist_km`). What do you see? Does that make sense/agree with your answer in **i)**?
+
+
+
+
