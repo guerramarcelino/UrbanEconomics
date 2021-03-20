@@ -12,11 +12,13 @@
 
 [**AMM Model II**](https://guerramarcelino.github.io/Econ414/Lectures/Lec4/lec4#1)
 
-[**Urban Sprawl and Land-use Regulation**](https://guerramarcelino.github.io/Econ414/Lectures/Lec4/lec5#1)
+[**Urban Sprawl and Land-use Regulation**](https://guerramarcelino.github.io/Econ414/Lectures/Lec5/lec5#1)
 
-[**The Great Divergence**](https://guerramarcelino.github.io/Econ414/Lectures/Lec5/lec6#1)
+[**The Great Divergence**](https://guerramarcelino.github.io/Econ414/Lectures/Lec6/lec6#1)
 
-[**Rosen-Roback Model**](https://guerramarcelino.github.io/Econ414/Lectures/Lec6/lec7#1)
+[**Rosen-Roback Model**](https://guerramarcelino.github.io/Econ414/Lectures/Lec7/lec7#1)
+
+[**Urban Transportation**](https://guerramarcelino.github.io/Econ414/Lectures/Lec8/lec8#1)
 
 
 ## R Labs
