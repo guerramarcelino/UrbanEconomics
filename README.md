@@ -20,9 +20,11 @@
 
 [**Urban Transportation**](https://guerramarcelino.github.io/Econ414/Lectures/Lec8/lec8#1)
 
-[**Housing**](https://guerramarcelino.github.io/Econ414/Lectures/Lec9/lec9#1)
+[**Housing Demand**](https://guerramarcelino.github.io/Econ414/Lectures/Lec9/lec9#1)
 
-[**Local Government**](https://guerramarcelino.github.io/Econ414/Lectures/Lec10/lec10#1)
+[**Housing Policies**](https://guerramarcelino.github.io/Econ414/Lectures/Lec10/lec10#1)
+
+[**Local Government**](https://guerramarcelino.github.io/Econ414/Lectures/Lec11/lec11#1)
 
 
 ## R Labs
