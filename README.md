@@ -20,6 +20,10 @@
 
 [**Urban Transportation**](https://guerramarcelino.github.io/Econ414/Lectures/Lec8/lec8#1)
 
+[**Housing**](https://guerramarcelino.github.io/Econ414/Lectures/Lec9/lec9#1)
+
+[**Local Government**](https://guerramarcelino.github.io/Econ414/Lectures/Lec10/lec10#1)
+
 
 ## R Labs
 
@@ -38,6 +42,8 @@
 [**HW #2**](https://guerramarcelino.github.io/Econ414/HW/HW2)
 
 [**HW #3**](https://guerramarcelino.github.io/Econ414/HW/HW3)
+
+[**HW #4**](https://guerramarcelino.github.io/Econ414/HW/HW4)
 
 ## Final Project
 
