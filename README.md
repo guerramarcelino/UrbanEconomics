@@ -26,6 +26,8 @@
 
 [**Local Government**](https://guerramarcelino.github.io/Econ414/Lectures/Lec11/lec11#1)
 
+[**Neighborhood Choice**](https://guerramarcelino.github.io/Econ414/Lectures/Lec12/lec12#1)
+
 
 ## R Labs
 
@@ -37,6 +39,8 @@
 
 [**Intro to mapping**](https://guerramarcelino.github.io/Econ414/Rlabs/lab4)
 
+[**Racial Dissimilarity Index**](https://guerramarcelino.github.io/Econ414/Rlabs/lab5)
+
 ## Homework
 
 [**HW #1**](https://guerramarcelino.github.io/Econ414/HW/HW1)
@@ -47,6 +51,10 @@
 
 [**HW #4**](https://guerramarcelino.github.io/Econ414/HW/HW4)
 
+[**HW #5**](https://guerramarcelino.github.io/Econ414/HW/HW5)
+
 ## Final Project
 
-[**Final Project Guidelines (Fall 2020)**](https://guerramarcelino.github.io/econ414/project/)
+[**Final Project Guidelines (Fall 2020)**](https://guerramarcelino.github.io/econ414/projectFA20/)
+
+[**Final Project Guidelines (Spring 2021)**](https://guerramarcelino.github.io/econ414/projectSP21/)
