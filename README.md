@@ -28,6 +28,10 @@
 
 [**Neighborhood Choice**](https://guerramarcelino.github.io/Econ414/Lectures/Lec12/lec12#1)
 
+[**Neighborhood Effects**](https://guerramarcelino.github.io/Econ414/Lectures/Lec13/lec13#1)
+
+[**ESDA**](https://guerramarcelino.github.io/Econ414/Lectures/Lec14/lec14#1)
+
 
 ## R Labs
 
@@ -40,6 +44,8 @@
 [**Intro to mapping**](https://guerramarcelino.github.io/Econ414/Rlabs/lab4)
 
 [**Racial Dissimilarity Index**](https://guerramarcelino.github.io/Econ414/Rlabs/lab5)
+
+[**ESDA**](https://guerramarcelino.github.io/Econ414/Rlabs/lab6)
 
 ## Homework
 
