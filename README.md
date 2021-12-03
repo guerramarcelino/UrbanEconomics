@@ -51,13 +51,23 @@
 
 [**HW #1**](https://guerramarcelino.github.io/Econ414/HW/HW1)
 
+**Learning goals:** get used to tidyverse packages that we will be using over the semester
+
 [**HW #2**](https://guerramarcelino.github.io/Econ414/HW/HW2)
+
+**Learning goals:** understand the Monocentric City Model and its extensions with numerical examples and an empirical application
 
 [**HW #3**](https://guerramarcelino.github.io/Econ414/HW/HW3)
 
+**Learning goals:** apply the Monocentric City Model to analyze urban sprawl/land-use regulations and understand some trends in the US labor market
+
 [**HW #4**](https://guerramarcelino.github.io/Econ414/HW/HW4)
 
+**Learning goals:** see congestion from the economic perspective, estimate hedonic regressions, understand more trends in the US labor market, and get used to mapping.
+
 [**HW #5**](https://guerramarcelino.github.io/Econ414/HW/HW5)
+
+**Learning goals:** understand the stock flow model and voting with the feet with numerical examples, and see the current patterns of neighborhood segregation within Chicago MSA
 
 ## Final Project
 
