@@ -1,0 +1,168 @@
+---
+title: | 
+  ![](ILlogo.jpg){width=.2in}
+  
+  | ECON 414: Urban Economics
+  
+  | Homework 4
+author: "Marcelino Guerra (mguerra3)"
+date: '04/12/2021'
+output:
+  pdf_document:
+    extra_dependencies: ["cancel", "amsmath", "amssymb", "float","tcolorbox"]
+    toc: yes
+    toc_depth: 2
+geometry: margin=1.2in
+urlcolor: blue
+fontsize: 11pt
+header-includes:
+   - \linespread{1.05}
+---
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(include = TRUE)  # TRUE for solution; FALSE for questions set
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(message = FALSE)
+  knitr::opts_chunk$set(warning = FALSE)
+  knitr::opts_chunk$set(fig.height = 6, fig.width = 8, out.width = '80%', fig.align = "center")
+  knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
+  options(width = 100)
+```
+
+```{css, echo=FALSE}
+.solution {
+background-color: #CCDDFF;
+}
+```
+
+\newpage 
+
+# Urban Transportation [50 points]
+
+## Freeway Congestion [35 points]
+
+The relationship between commuting cost $g$ (**in hundreds**) and $T$ (**in thousands**) is shown in the figure below, with some degree of poetic license. The monthly commuting cost per driver when the freeway is not congested (i.e., when there are fewer than **$\bar{T}=500$** cars at the same time) is **$300**. The commuting cost function when the freeway is congested is given by $g(T)=T^{2}+3$, and the demand functional form at the rush-hour is $D=5-T$. Assume $T>0$ and $n=2,500$ commuters in total using either the freeway or the alternate routes. If you need help solving equations, use [Wolfram](https://www.wolframalpha.com/). 
+
+```{r, echo=F}
+library(tidyverse)
+library(ggthemes)
+ggplot(data =data.frame(x = c(0,2), y=(0:5)) , aes(y,x)) +
+  geom_segment(aes(x=0, xend=.5, y=3, yend=3), 
+              size=1.2)+
+  geom_curve(aes(x = .5, y = 3, xend = 2, yend = 5,colour="g(T)"),
+          curvature = 0.2, angle = 45 ,lwd=1.2)+
+  geom_abline(aes(intercept = 5, slope = -1.6, colour="Demand"), size=1.2)+
+  geom_segment(aes(x=.5,xend=.5, y=0 ,yend=3), linetype="AA", lwd=1.2)+
+ scale_x_continuous(limits = c(0,2.5), breaks=c(0,.5,1.5,2), expand = c(0, 0)) +
+scale_y_continuous(limits = c(0,5), expand = c(0, 0)) +
+  theme_economist_white(gray_bg = F)+
+  theme(text = element_text(size=20))+
+  xlab("T (in thousands)") + 
+  ylab("$ (in hundreds)")+
+  labs(color='')
+```
+
+a) What are the aggregate and marginal costs of using the freeway as a function of $T$?
+
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black]
+The aggregate cost is $Tg(T)=T(T^{2}+3)=T^{3}+3T$. The marginal cost is...
+\end{tcolorbox}
+
+b) What is the number of cars using the freeway when there is no congestion pricing (free market equilibrium)? Also, compute the total commuting cost in this scenario: the cost of using the freeway + the alternate costs. 
+
+*Hint:* find the area below the $MC$ curve from .5 to $T_{eq}$. Find the area below the demand curve from $T_{eq}$ to 2.5. Finally, find the area of the rectangle from 0 to $\bar{T}$. The sum of those areas is the total commuting cost. To get the area below those curves you might need to use integral.  
+
+c) What is the optimal number of cars $T_{opt}$ using the freeway? Also, compute the total commuting cost in this scenario. 
+
+*Hint:* same as before, but now use $T_{opt}$ instead of $T_{eq}$.
+
+d) Suppose the mayor wants to impose a congestion toll to reach the optimal number of drivers using the freeway. Find the value of the congestion toll that must be charged to achieve $T_{opt}$ freeway commuters at the rush-hour.  
+
+
+e) Assume that the mayor wants to avoid congestion at the rush-hour imposing the following restriction: only cars from 1 to 500 would be allowed to commute using the freeway. It is your duty as a good economist to give some advice to him on that matter. What do you say to him?  
+
+*Hint*: compare the total commuting costs between the scenario where there are $T_{opt}$ cars with the one that has 500 cars.  
+
+## Commuting Time in the U.S. [15 points]
+Let's find out where are America's longest and fastest travel times to work. [Here](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/commute.rar) you have a shapefile that contains the average commute time per U.S. county (excluding Hawaii and Alaska) based on the American Community Survey 2014-18. What are the top five and bottom five counties in terms of commute time? What is America's average travel time to work? Finally, map the spatial distribution of commuting to work in U.S. counties.
+
+
+\newpage
+
+# Housing Demand and Tenure Choice [25 points]
+
+## Vanilla Version of Hedonic Regression [15 points]
+
+Using this `.RDS` [data](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/kings_sales.RDS) on house sales in King County-WA (May-Dec 2014), estimate a [hedonic regression](https://guerramarcelino.github.io/Econ414/Lectures/Lec9/lec9?panelset=r-code#6) using the `lm()` function - you can find the original dataset [here](https://geodacenter.github.io/data-and-lab/KingCounty-HouseSales2015/). The dependent variable is `price`, and all the other columns (besides GEOID and id) are treated as explanatory variables. First, run the regression with only house characteristics (everything but med_inc, popdens14, bach_share, and owner_share) and answer the following: 
+
+a) What is the implicit price of `number of bathrooms`? 
+
+b) By how much a house value raises with an increase of 10 square feet in the size of living area? 
+
+c) Do older houses worth less than newer homes on average? 
+
+d) Does the implicit price of distance from downtown agree with the Monocentric City Model? Why?  
+
+e) Now, run a regression including the Census tracts characteristics (i.e., with everything plus med_inc, popdens14, bach_share, and owner_share). Explain the signs of the coefficients related to neighborhood characteristics.
+
+
+```{r, include=T, echo=F}
+library(kableExtra)
+Variable<-c("GEOID","id","price", "bathrooms", "sqft_liv", "sqft_lot", "waterfront", "view", "condition", "grade", "dist",  "basement", "renov", "age", "med_inc","popdens14", "bach_share", "owner_share")
+Definition<-c("Census tract id","Identification", "Sale price", "Number of bathrooms", "Size of living area in square feet", "Size of the lot in square feet", "‘1’ if the property has a waterfront, ‘0’ if not", "An index from 0 to 4 of how good the view of the property was" ,"Condition of the house, ranked from 1 to 5", "Refers to the types of materials used and the quality of workmanship. Buildings of better quality have higher grade", "Distance from downtown Seattle", "'1' if the property has a basement, '0' if not", "'1' if the property was renovated in the last 10 years, '0' if not", "Age of the property", "Median Household Income in the Census tract", "Population Density in the Census tract", "Share of people with bachelor's degree in the Census tract", "Share of houses that are owner-occupied in the Census tract")
+df<-data.frame(Variable, Definition)
+kbl(df, digits=2, caption = "Variables Description", booktabs = T) %>%
+kable_styling(latex_options = c("striped", "HOLD_position"))%>%
+  column_spec(2, width = "12cm")
+```
+	
+
+
+## Tenure Choice [10 points]
+
+In this question, use the model with accelerated depreciation deduction and assume the following parameters: $i=0.03$, $h=0.02$, $d=0.02$, $g=0.04$, $e=0.02$ and $\lambda = 0.35$.
+
+a) Compute the tax rate $\hat{\tau}$ that separates renters and owner-occupiers
+
+b) Suppose $\lambda$ increases to 0.40. What is the new $\hat{\tau}$? Give an intuitive explanation for your answer - what happens with the housing tenure choice graph?
+
+\newpage
+
+# Innovation Jobs & US Tech-Hubs [40 points]
+
+One way to map where innovation happens is to look at the number of patents per residents. Of course, this is an imperfect measure of innovation since not all new ideas are patented, and not all patents turn into valuable innovations. That said, we are going to use patents per residents as a proxy of innovative activity, and we consider tech-hubs the areas with a high/very-high number of patents per capita.
+
+The United States Patent and Trademark Office provides a [periodic tabulation of patent data](https://www.uspto.gov/web/offices/ac/ido/oeip/taf/countyall/usa_county_gd.htm), and you can find this information in a `.RDS` file [here](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/patentsUS).
+
+## Patents per 100,000 population [10 points]
+
+a) Using tidycensus, find the ACS 2015 5-year estimate of the total population per county. This time, we want to add the option `geometry = T` and `shift_geo = T` inside the `get_acs()` function. Check [this](https://guerramarcelino.github.io/Econ414/Rlabs/lab4) Rlab for mapping and [this one](https://guerramarcelino.github.io/Econ414/Rlabs/lab3) for tidycensus!
+
+*Hint*: load the variables and find the one related to `TOTAL POPULATION`.
+
+b) Merge the datasets of patents and total population while keeping all the counties from the ACS data
+
+*Hint*: you have more counties in the ACS data than in the patents data, so use `left_join()`. You are going to get NAs related to patent information for around 201 counties.   
+
+c) Calculate the total number of patents in 2000-2015 (column `Total`) per 100,000 population. What are the top five and bottom five counties in terms of innovativeness?
+
+
+## Mapping data using tmap+tidycensus [15 points]
+
+Using tidycensus with the option `geometry = T`, one can get coordinates of the desired areas (in our case, counties). Then, to map the data is straightforward - treat your data as a shapefile [tm_shape(your_data)+...+...](https://guerramarcelino.github.io/Econ414/Rlabs/lab4#tmap-tidycensus). 
+
+a) Use `tmap` to map the patents per 100,000 population in U.S. counties. Are the tech-hubs randomly distributed over space? What do you see?
+
+b) Tech-hubs have at least one thing in common: a very skilled labor force. That means the geographical distribution of skilled people is similar to the distribution of tech-hubs in U.S. counties. And here is the question: summarize [Rebecca Diamond's take on US workers' diverging locations by skill](https://microeconomicinsights.org/causes-consequences-us-workers-diverging-locations-skill/), and try to relate it with what you know about the role of innovation jobs and the geographical distribution of tech-hubs in the US.   
+
+
+## Your neighbor's education affects your salary [15 points]
+
+Now, we want to explore the link between local human capital and salaries across U.S. micro and metropolitan regions. Examining the data from the American Community Survey 2019 - 5 years using the package `tidycensus`, construct a scatter plot to show the relationship between the median earnings in the past 12 months for high school graduates in the 945 core-based statistical areas and the share of the population that has a Bachelor degree. **What are the main reasons for that relationship to hold?**
+
+*Hint:* load the variables from acs5/year 2019 first. Then, look for `median earnings in the past 12 months`, and get the name of the one that is labeled as `Total!!High school graduate`. After that, you need to get the total population and the entire population with a bachelor's degree. You are searching for `educational attainment for the population 25 years and over` with labels `!!Total`, `Total!!Bachelor's degree`, `Total!!Master's degree`, `Total!!Professional school degree`, `Total!!Doctorate degree`. Also, remember that your `geography` is "metropolitan statistical area/micropolitan statistical area". 
+
+
+
+

@@ -1,0 +1,344 @@
+---
+title: | 
+  ![](ILlogo.jpg){width=.2in}
+  
+  | ECON 414: Urban Economics
+  
+  | Homework 5
+author: "Marcelino Guerra (mguerra3)"
+date: '04/20/2021'
+output:
+  pdf_document:
+    extra_dependencies: ["cancel", "amsmath", "amssymb", "float","tcolorbox"]
+    toc: yes
+    toc_depth: 3
+geometry: margin=1.2in
+urlcolor: blue
+fontfamily: mathpazo
+fontsize: 11pt
+header-includes:
+   - \linespread{1.05}
+---
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(include = TRUE)  # TRUE for solution; FALSE for questions set
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(message = FALSE)
+  knitr::opts_chunk$set(warning = FALSE)
+  knitr::opts_chunk$set(fig.height = 5, fig.width = 7, out.width = '60%', fig.align = "center")
+  knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
+  options(width = 100)
+```
+
+```{css, echo=FALSE}
+.solution {
+background-color: #CCDDFF;
+}
+```
+
+\newpage
+
+# Rent Control & The Stock Flow Model  [35 Points] 
+
+Consider the [stock flow model we saw in class](https://guerramarcelino.github.io/Econ414/Lectures/Lec10/lec10#5). Under particular circumstances, in that model, the housing supply adjustment can be pretty fast. Suppose the initial demand for housing is given by $p=50-H$, where $p$ is the rental price per square foot of housing and H is the housing stock's size at a given period. **The flow supply curve** for housing is given by $\Delta H=p-30$, where $\Delta H$ represents a one-period change in the stock of houses when the market price is equal to $p$. Finally, the initial stock of housing is $S_{e}=20$. The figures below might help you to figure this out.    
+
+
+## Initial Equilibrium [5 points]
+
+Compute the equilibriu price $p_{e}$.
+
+*Hint*: The equilibrium price is the price that prevails when $\Delta H=0$ (i.e., there is no new housing in the market). 
+
+```{r, echo=F, fig.cap="The Stock Flow Model"}
+library(tidyverse)
+library(ggthemes)
+library(patchwork)
+library(latex2exp)
+
+df<-data.frame(x1=-100, x2=150, y1=0, y2=150)
+g1<-ggplot()+
+  geom_point()+
+  theme_economist_white(gray_bg = F)+
+  theme(text = element_text(size=20))
+
+
+
+g0<-g1+ geom_segment(aes(x=20, xend=20, y=0, yend=50), 
+                     data=df, size=1.3)+
+  geom_segment(aes(x=0, xend=0, y=0, yend=60), 
+              data=df, size=2)+
+  geom_hline(yintercept=30, linetype="dashed", color = "darkgray")+
+  geom_abline(aes(intercept = 50, slope = -1), size=1.2, color="darkblue")+
+  scale_x_continuous(limits = c(0,100), expand = c(0, 0),
+                     breaks=c(0,20,40,60)) +
+  scale_y_continuous(limits = c(0,60), expand = c(0, 0), 
+                     breaks=c(0,20,40,60)) +
+  xlab("H") + 
+  ylab("P")+
+  labs(color='')+
+  theme( axis.line = element_line(colour = "black", 
+                                  size = 1, linetype = "solid"))+
+  annotate("text", x = 20, y = 52, label = TeX("$S_{e}$"), size=6)+
+  annotate("text", x = 27, y = 31, label = TeX("$p_{e}$"), size=6)
+
+
+g2<-g1+ geom_segment(aes(x=0, xend=0, y=0, yend=60), 
+               data=df, size=1.3)+
+   geom_hline(yintercept=30, linetype="dashed", color = "darkgray")+
+  geom_hline(yintercept=20, color = "gray", size=1)+
+  geom_hline(yintercept=40, color = "gray", size=1)+
+  geom_hline(yintercept=60, color = "gray", size=1)+
+  geom_abline(aes(intercept = 30, slope = 1), size=1.2, color="darkblue")+
+  scale_x_continuous(limits = c(-100,150), expand = c(0, 0),
+                     breaks=c(0)) +
+  scale_y_continuous(limits = c(0,60), expand = c(0, 0), 
+                     breaks=c()) +
+  annotate("text", x = 50, y = 55, label = TeX("$S_{ \\Delta H}$"), size=6)+
+ # annotate("text", x = 30, y = 31, label = TeX("$p_{e}$"), size=6)+
+  xlab(TeX("$\\Delta H$")) + 
+  ylab("")+
+  labs(color='')+
+   theme( axis.line = element_line(colour = "black", 
+                                  size = 1, linetype = "solid"))
+
+g0+g2
+
+```
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black]
+The equilibrium price $p_{e}$ is equal to ...
+\end{tcolorbox}
+
+## New Constructions after Demand shock [10 points]
+Suppose that there is an intense migration to this city, and therefore there is a positive demand shock in the housing market. The new demand curve is given by $p=90-H$.
+
+```{r, echo=F, fig.cap="The Stock Flow Model - Demand Shock"}
+df<-data.frame(x1=-100, x2=150, y1=0, y2=150)
+g1<-ggplot()+geom_point()+theme_economist_white(gray_bg = F)+theme(text = element_text(size=20))
+
+g0<-g1+ geom_segment(aes(x=20, xend=20, y=0, yend=80), 
+                     data=df, size=1.3)+
+  geom_segment(aes(x=0, xend=0, y=0, yend=90), 
+               data=df, size=2)+
+    geom_segment(aes(x=60, xend=60, y=0, yend=80), 
+               data=df, size=1, linetype="dashed")+
+  geom_segment(aes(x=20, xend=60, y=50, yend=50), 
+               data=df, size=2, arrow = arrow(length = unit(0.3, "inches")))+
+  geom_hline(yintercept=30, linetype="dashed", color = "darkgray")+
+  geom_hline(yintercept=70, linetype="dashed", color = "darkgray")+
+  geom_abline(aes(intercept = 50, slope = -1), size=1.2, color="darkblue")+
+  geom_abline(aes(intercept = 90, slope = -1), size=1.2, color="darkorange")+
+  scale_x_continuous(limits = c(0,100), expand = c(0, 0),
+                     breaks=c(0,20,40,90)) +
+  scale_y_continuous(limits = c(0,90), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80)) +
+  xlab("H") + 
+  ylab("P")+
+  labs(color='')+
+  theme( axis.line = element_line(colour = "black", 
+                                  size = 1, linetype = "solid"))+
+  annotate("text", x = 20, y = 82, label = TeX("$S_{e}$"), size=6)+
+  annotate("text", x = 60, y = 82, label = TeX("$S_{e}'$"), size=6)+
+  annotate("text", x = 27, y = 31, label = TeX("$p_{e}$"), size=6)+
+  annotate("text", x = 25, y = 71, label = TeX("$p'$"), size=6)
+
+g2<-g1+ geom_segment(aes(x=0, xend=0, y=0, yend=90), 
+                     data=df, size=1.3)+
+  geom_hline(yintercept=30, linetype="dashed", color = "darkgray")+
+  geom_hline(yintercept=20, color = "gray", size=1)+
+  geom_hline(yintercept=40, color = "gray", size=1)+
+  geom_hline(yintercept=60, color = "gray", size=1)+
+  geom_hline(yintercept=80, color = "gray", size=1)+
+  geom_hline(yintercept=70, linetype="dashed", color = "darkgray")+
+    geom_segment(aes(x=0, xend=40, y=70, yend=70), 
+               data=df, size=2, color="darkorange")+
+  geom_abline(aes(intercept = 30, slope = 1), size=1.2, color="darkblue")+
+  scale_x_continuous(limits = c(-100,150), expand = c(0, 0),
+                     breaks=c(0)) +
+  scale_y_continuous(limits = c(0,90), expand = c(0, 0), 
+                     breaks=c()) +
+  annotate("text", x = 65, y = 78, label = TeX("$S_{ \\Delta H}$"), size=6)+
+  xlab(TeX("$\\Delta H$")) + 
+  ylab("")+
+  labs(color='')+
+  theme( axis.line = element_line(colour = "black", 
+                                  size = 1, linetype = "solid"))
+
+g0+g2
+```
+
+a) Due to the positive demand shock, there is an increase in housing prices. Compute this new equilibrium price $p'$.
+
+b) Developers treat this higher price as a signal: there is scarcity in the housing market (the orange line in the flow supply curve). Using the flow supply curve, calculate the change in the housing stock that occurs after the demand shock. Also, compute the total stock of housing in this market ($S_{e'}=H + \Delta H$) 
+
+c) After the increase in the housing stock, what is the housing price in this market? Does this market need any further adjustment to reach the equilibrium price $p_{e}$?
+
+## Demand shock under Rent Control [10 points]
+
+Now, suppose that the city reacts to the new demand shock by imposing a rent control law that fixes housing prices at $p_{c}=40$ (the dark red line in the graph). Assume that the law applies to old buildings, but the developers fear that new buildings will be included in this bill as soon as they are constructed. Since this new law interferes with the signal of housing scarcity (prices), that leads to a different adjustment process. 
+
+
+```{r, echo=F, fig.cap="The Stock Flow Model - Demand Shock"}
+
+df<-data.frame(x1=-100, x2=150, y1=0, y2=150)
+g1<-ggplot()+ geom_point()+theme_economist_white(gray_bg = F)+theme(text = element_text(size=20))
+
+g0<-g1+ 
+  geom_segment(aes(x=20, xend=20, y=0, yend=80), 
+                     data=df, size=1.3)+
+  geom_segment(aes(x=0, xend=0, y=0, yend=90), 
+               data=df, size=2)+
+  geom_segment(aes(x=20, xend=40, y=50, yend=50), 
+               data=df, size=2, arrow = arrow(length = unit(0.3, "inches")))+
+  geom_segment(aes(x=30, xend=30, y=0, yend=80), 
+               data=df, size=1, linetype="dashed")+
+  geom_segment(aes(x=40, xend=40, y=0, yend=80), 
+               data=df, size=1, linetype="dashed")+
+  geom_hline(yintercept=40, color = "darkred", size=1.2)+
+  geom_hline(yintercept=30, linetype="dashed", color = "darkgray")+
+  geom_hline(yintercept=70, linetype="dashed", color = "darkgray")+
+  geom_abline(aes(intercept = 50, slope = -1), size=1.2, color="darkblue")+
+  geom_abline(aes(intercept = 90, slope = -1), size=1.2, color="darkorange")+
+  scale_x_continuous(limits = c(0,100), expand = c(0, 0),
+                     breaks=c(0,20,60, 80)) +
+  scale_y_continuous(limits = c(0,90), expand = c(0, 0), 
+                     breaks=c(0,20,40,60,80)) +
+  xlab("H") + 
+  ylab("P")+
+  labs(color='')+
+  theme( axis.line = element_line(colour = "black", 
+                                  size = 1, linetype = "solid"))+
+  annotate("text", x = 20, y = 82, label = TeX("$S_{e}$"), size=6)+
+  annotate("text", x = 25, y = 31, label = TeX("$p_{e}$"), size=6)+
+  annotate("text", x = 25, y = 71, label = TeX("$p'$"), size=6)+
+  annotate("text", x = 25, y = 45, label = TeX("$p_{c}$"), size=6)
+
+g2<-g1+ 
+  geom_segment(aes(x=0, xend=0, y=0, yend=90), 
+                     data=df, size=1.3)+
+  geom_hline(yintercept=30, linetype="dashed", color = "darkgray")+
+  geom_hline(yintercept=20, color = "gray", size=1)+
+  geom_segment(aes(x=0, xend=10, y=40, yend=40), 
+                     data=df, size=1.3, color="darkred")+
+  geom_hline(yintercept=60, color = "gray", size=1)+
+  geom_hline(yintercept=80, color = "gray", size=1)+
+  geom_hline(yintercept=70, linetype="dashed", color = "darkgray")+
+  geom_abline(aes(intercept = 30, slope = 1), size=1.2, color="darkblue")+
+  scale_x_continuous(limits = c(-100,150), expand = c(0, 0),
+                     breaks=c(0)) +
+  scale_y_continuous(limits = c(0,90), expand = c(0, 0), 
+                     breaks=c()) +
+  annotate("text", x = 65, y = 78, label = TeX("$S_{ \\Delta H}$"), size=6)+
+  xlab(TeX("$\\Delta H$")) + 
+  ylab("")+
+  labs(color='')+
+  theme( axis.line = element_line(colour = "black", 
+                                  size = 1, linetype = "solid"))
+
+g0+g2
+```
+
+a) With prices fixed at $p_{c}=40$, what will be the change in the housing stock that occurs right after the demand shock?
+
+b) With those smaller increments in housing supply, how many periods does it take to the market to reach $p_{e}$ again?
+
+## Affordable Housing [10 points]
+
+One way to promote affordable housing without interfering directly in prices is to [explicitly subsidize housing consumption](https://guerramarcelino.github.io/Econ414/Lectures/Lec10/lec10#8). Two examples of such public policy are Public Housing and Income Grants. Compare those two financial assistances in terms of increase in the target group's utility and the slum-reduction effect. 
+
+What kind of advice would you give to a mayor regarding which policy to adopt?  
+
+# Public Good Provision and Voting with the Feet [35 Points]
+
+## Voting with one's feet [20 points]
+
+Consider two types of consumers: type $A$ with high demand $D_{A}=60-z$ for policing (the public good in question) and type $C$ with low demand $D_{C}=40-z$. In this first scenario, the per capita cost $\frac{c(n)}{n}$ of a police officer equals $\$30$ in any jurisdiction. Also, assume that there are 80 types A and 20 types C residents in the jurisdiction. With that in mind, answer the following questions. 
+
+```{r, echo=F, fig.cap="Voting with the feet"}
+df<-data.frame(x1=0, x2=100, y1=0, y2=150)
+g1<-ggplot()+
+  geom_point()+
+  theme_economist_white(gray_bg = F)+
+  theme(text = element_text(size=20))
+
+
+g2<-g1+   geom_abline(aes(intercept = 40, slope = -1, colour="DC"), size=1.2)+
+  geom_abline(aes(intercept = 60, slope = -1, colour="DA"), size=1.2)+
+  geom_segment(aes(x=x1, xend=x2, y=30, yend=30), 
+               data=df, size=1.2)+
+  scale_x_continuous(limits = c(0,100), expand = c(0, 0),
+                     breaks=c(0,20, 40, 60,80)) +
+  scale_y_continuous(limits = c(0,70), expand = c(0, 0), 
+                     breaks=c(0,10,20,30,40,50,60,70)) +
+  xlab("Z") + 
+  ylab("$")+
+  labs(color='')
+
+g2
+
+
+```
+
+a) What are the optimal levels of public good for consumers $A$ and $C$?
+
+b) Suppose there is an election between two candidates. One represents consumer-voters A and the other the C-types. What would be the outcome of the election? What is going to be the level of public good provision?
+
+c) Use the outcome from the election to calculate the consumer surplus for populations A and C living in that jurisdiction.
+
+d) Imagine that the 20 consumers type C could move to another jurisdiction where everyone has the same demand curve $D_{C}=40-z$. In that scenario, what is going to be the consumer-voter C surplus? Are they better off moving to this homogeneous neighborhood?
+
+## The Role of the Property-tax System [15 points]
+
+Now, assume that the local government finances its expenditure with revenues generated by property tax. That property tax falls upon the size of the house, and that ultimately depends on households' income levels. Consumer-voters type A live in bigger houses and, therefore, pay a tax equals to $\$30$ per police office; consumer-voters type C only pay $\$20$.  
+
+
+```{r, echo=F, fig.cap="Voting with the feet"}
+df<-data.frame(x1=0, x2=100, y1=0, y2=150)
+g1<-ggplot()+
+  geom_point()+
+  theme_economist_white(gray_bg = F)+
+  theme(text = element_text(size=20))
+
+
+g2<-g1+   geom_abline(aes(intercept = 40, slope = -1, colour="DC"), size=1.2)+
+  geom_abline(aes(intercept = 60, slope = -1, colour="DA"), size=1.2)+
+  geom_segment(aes(x=x1, xend=x2, y=30, yend=30), 
+               data=df, size=1.2)+
+  geom_segment(aes(x=x1, xend=x2, y=20, yend=20), 
+               data=df, size=1.2, color="darkred")+
+  scale_x_continuous(limits = c(0,100), expand = c(0, 0),
+                     breaks=c(0,20, 40, 60,80)) +
+  scale_y_continuous(limits = c(0,70), expand = c(0, 0), 
+                     breaks=c(0,10,20,30,40,50,60,70)) +
+  xlab("Z") + 
+  ylab("$")+
+  labs(color='')
+
+g2
+```
+
+a) Considering the new cost, what is the new optimal level of policing for consumer-voters C?
+
+b) Calculate the new consumer-voter C surplus under the assumption of different tax burdens. Do they want to move to a homogeneous jurisdiction (i.e., a neighborhood with only C-types)?
+
+# Racial Dissimilarity Index in Chicago Metro Area [30 points]
+
+To see the current standard of racial separation in Chicago's Neighborhoods, one can look at the American Community Survey data (2014-2018) [here](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/chi_metro.RDS). In this file, you have the estimated black, white, and total population of 2,184 census tracts within Chicago's metro area - a zone that comprehends 14 counties in Illinois, Indiana, and Wisconsin. Using the provided data, calculate whites and blacks' shares in each census tract (you want to store this information in a new column).
+
+## Ghetto Neighborhoods [10 points]
+
+When a neighborhood reaches above 80% share of minority, it can be defined as a "ghetto". Using that threshold to filter ghettos in Chicago's Metro Area, compute the share of blacks that live in a ghetto neighborhood. 
+
+
+## Mapping Ghettos in Chicago-Naperville-Elgin, IL-IN-WI	[10 points]
+
+Use `tmap` to map the share of the black population in the Chicago-Naperville-Elgin Metro Area. Instead of using `style=quatile`, define `breaks=c(0,.2,.4,.6,.8,1)` so you can set specific values to see where are the ghettos in that area.
+
+
+## Computing the Racial Dissimilarity Index [10 points]
+
+Residential segregation can be measured in many ways, but the most common method is to calculate the Dissimilarity Index (DI). DI measures the extent to which two groups are found in equal proportion in all neighborhoods and can be interpreted as the proportion of individuals of either group that would have to move to other neighborhoods to achieve perfect integration. 
+
+What is the Racial Dissimilarity Index for Chicago Metro Area?
+
+*Hint:* [Rlab 5](https://guerramarcelino.github.io/Econ414/Rlabs/lab5) has this calculation for Champaign-IL county 

@@ -1,17 +1,24 @@
 ---
 title: "Dataviz with ggplot2"
 author: "Marcelino Guerra"
-date: "Last update: 9/2/2020"
+date: "Last update: 2/4/2021"
 abstract: Lecture notes on how to make line plots and scatter plots with ggplot2, and an exercise with tidycensus.  
-output: html_document
+output: 
+  rmdformats::downcute
 ---
+
+<style type="text/css">
+  body{
+  font-size: 13pt;
+}
+</style>
 
 ```{r setup, include=FALSE}
   knitr::opts_chunk$set(include = TRUE)  # TRUE for solution; FALSE for questions set
   knitr::opts_chunk$set(echo = TRUE)
   knitr::opts_chunk$set(message = FALSE)
   knitr::opts_chunk$set(warning = FALSE)
-  knitr::opts_chunk$set(fig.height = 6, fig.width = 11, out.width = '90%', fig.align = "center")
+  knitr::opts_chunk$set(fig.height = 6, fig.width = 11, out.width = '100%', fig.align = "center")
   options(width = 90)
 
 ```
@@ -22,7 +29,7 @@ output: html_document
 In this exercise, we are working with urbanization and per capita income of a bunch of countries from [Our World in Data](https://ourworldindata.org/urbanization). The first chart is a simple line plot. The first step is to import [this .csv file](https://drive.google.com/file/d/1M13_5sjCNnouvGZOJB56SemHydPkgCvR/view?usp=sharing). You might want to check the data using `View()`.
 
 ```{r,include=T}
-require(tidyverse)
+library(tidyverse)
 urban_gdp<-read_csv("urbanization_gdp.csv", col_names=T)
 ```
 
@@ -32,7 +39,7 @@ Let's check the evolution of the share of urban population (%) in Brazil, from 1
 brazil<-urban_gdp%>%filter(Entity=="Brazil")%>%arrange(Year)%>%filter(Year>=1950)
 ```
 
-Working with the filtered data, use `ggplot()` package to create line plots. The package `ggthemes` allows you to customize the chart appearance, and you might want to check all the possibilites [here](https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/). For this exercise, I will use [`theme_economist`](https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/theme_economist/). The basic line plot works with `geom_line()`, and you can set the line type and its size easily. `theme()` adjust the size of the label in the axis, and `scale_x_continuous()` gives you some freedom to establish the years in the x axis (note that we are not working with dates yet!).  
+Working with the filtered data, use `ggplot()` package to create line plots. The package `ggthemes` allows you to customize the chart appearance, and you might want to check all the possibilites [here](https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/). For this exercise, I will use [`theme_economist`](https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/theme_economist/). The basic line plot works with `geom_line()`, and you can set the line type and its size easily. `theme()` adjust the size of the label in the axis, and `scale_x_continuous()` gives you some freedom to establish the years that appear in the x axis (note that we are not working with dates yet!).  
 
 ```{r, include=T}
 library(ggthemes)
@@ -47,9 +54,9 @@ ggplot(data=brazil, aes(x=Year,y=`Share of population living in urban areas (%)`
 
 ## Scatter plots
 
-Using scatter plots, you can see the degree of association between two variables. It is a very compelling way to show simple correlations. For example, one can argue that per capita income goes along with urbanization. To construct a scatter plot between those two variables for 2016, we filter the full dataset (`urban_gdp`) for 2016. You can check your new dataset using `View()`. There are entities without information about `GDP per capita` and we drop those NA's together with the `Code` NA's (here I am trying to get rid of entities that are not countries). Also, we drop the entity `World` because we want to work with countries.     
+Using a scatter plot, you can see the extent to which two variables are associated, and it is a very compelling way to show simple correlations. For example, one can argue that *per capita* income goes along with urbanization - as countries urbanize, they get richer. To construct a scatter plot between those two variables for 2016, we filter the full dataset (`urban_gdp`) for `Year==2016`. You can check your new dataset using `View(urban_gdp)`. There are entities without information about `GDP per capita`, and we drop those NA's. If you look at the data, you will realize that when an Entity has `Code` equal to NA that means the entity is not actually a single country, and we also want to drop those data points. Finally, we drop the entity `World` because we only want to work with countries.     
 
-As you can see, cleaning the data is a very important step. Finally, I will rename columns 4 and 5 and create a new variable using the natural logarithm of the GDP per capita. 
+As you can see, cleaning the data is a crucial step before plotting. Finally, I will rename columns 4 and 5 and create a new variable applying the natural logarithm to the GDP per capita. 
 
 ```{r, include=T}
 urban_gdp_16<-urban_gdp%>%filter(Year==2016)
@@ -61,11 +68,22 @@ urban_gdp_16$ln_gdp<-log(urban_gdp_16$gdp)
 head(urban_gdp_16,3)
 ```
 
-Back to `ggplot()`, instead of `geom_line()` we use `geom_point()`. The package `ggrepel` allows you to label the dots in your chart (function `geom_text_repel()`), and `stat_smooth()` adds the regression line to your plot.
+Back to `ggplot()`! Instead of `geom_line()`, we use `geom_point()` to construct scatter plots. 
 
 ```{r, include=T}
-library(ggrepel)
+ggplot(urban_gdp_16, aes(x=urban_pop, y=ln_gdp)) +
+  geom_point(color="darkgrey") + 
+  scale_x_continuous(name = "Share of population living in urban areas (%)") +
+  scale_y_continuous(name = "Ln GDP per capita U$ 2011") +
+  theme_economist_white(base_size = 17, gray_bg=FALSE)+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold"))
+```
 
+**You can do better than that**. The package `ggrepel` allows you to label the dots in your chart (function `geom_text_repel()`). I will label the dots with respective country codes. Finally, `stat_smooth()` adds the regression line to your plot.
+
+```{r}
+library(ggrepel)
 ggplot(urban_gdp_16, aes(x=urban_pop, y=ln_gdp)) + geom_point(color="darkgrey") + geom_text_repel(aes(label=Code), size=3)+
   stat_smooth(method = "lm", formula =y~x, se=F, color="black") +
   scale_x_continuous(name = "Share of population living in urban areas (%)") +
@@ -73,35 +91,6 @@ ggplot(urban_gdp_16, aes(x=urban_pop, y=ln_gdp)) + geom_point(color="darkgrey") 
   theme_economist_white(base_size = 17, gray_bg=FALSE)+
   theme(axis.text=element_text(size=12),
         axis.title=element_text(size=12,face="bold"))
-
 ```
 
-## Tidycensus
-
- To get started with `tidycensus`, you need to install the package and set a Census API key. Use this link [(here)](https://api.census.gov/data/key_signup.html) to request a key. You can use "University of Illinois at Urbana-Champaign" as an organization and your student account as an email address. After that, use `census_api_key("your_api_number_goes_here", install =TRUE)` and you are set. Let's take a look at the variables in the American Community Survey 5-year estimates (`acs5`) for 2018. 
- 
-```{r, include=T}
-library(tidycensus)
-#census_api_key("put_your_key_here", install =TRUE)
-variables<- load_variables(year = 2018, dataset = "acs5")
-head(variables)
-```
-
-Working with `tidycensus`, you can get data from a collection of geographies - state, county, block, tract, etc. Here we work with tracts in Suffolk County-MA (Boston region) for 2018. All the variables have an specific code and you might want to come back to `variables` to check what is available and what code corresponds to what variables.   
-
-```{r, include=T}
-boston_data <- get_acs(geography = "tract", state="MA", county = "Suffolk County", year=2018, dataset="acs5", output = "wide", variables = c(medincome="B19013_001", housevalue="B25077_001", rent="B25064_001", age= "B01002_001"))
-head(boston_data)
-```
-The `E` after the variable's name corresponds to "estimate" - that is the value we are looking for. The `M` after the variable's name refers to the margin of error - [here](https://www.census.gov/programs-surveys/acs/guidance/training-presentations/acs-moe.html) you have more info about the moe. With the following code, you get a scatter plot of median household income and median gross rent for census tracts in Boston-MA. 
-
-```{r, include=T}
-
-ggplot(boston_data, aes(x=medincomeE, y=rentE)) + geom_point(color="darkgrey")+
-  stat_smooth(method = "lm", formula =y~x, se=F, color="black") +
-  scale_x_continuous(name = "Median Household Income") +
-  scale_y_continuous(name = "Median Gross Rent")+
-  theme_economist_white(base_size = 17, gray_bg=FALSE)+
-  theme(axis.text=element_text(size=12),
-        axis.title=element_text(size=12,face="bold"))
-```
+Here we see the strong and positive relationship between the share of the population living in urban areas (%) and the GDP per capita (U$ 2011) for 164 selected countries. **For more facts about urbanization, check [Our World in Data](https://ourworldindata.org/urbanization)**.

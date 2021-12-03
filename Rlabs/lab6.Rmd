@@ -1,0 +1,257 @@
+---
+title: "Exploratory Spatial Data Analysis"
+author: "Marcelino Guerra"
+date: "Last update: 04/29/2021"
+abstract: Lecture notes on how to calculate Moran's I, and how to construct Moran Scatterplots and LISA maps using R. 
+output: 
+  rmdformats::downcute
+---
+
+<style type="text/css">
+  body{
+  font-size: 13pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(include = TRUE)  # TRUE for solution; FALSE for questions set
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(message = FALSE)
+  knitr::opts_chunk$set(warning = FALSE)
+  knitr::opts_chunk$set(fig.height = 6, fig.width = 11, out.width = '100%', fig.align = "center")
+  options(width = 90)
+
+```
+
+# Homicide rates in US counties 1990
+
+
+## The data
+
+In this exercise, we will use data from US counties in 1990. [Here](https://geodacenter.github.io/data-and-lab/ncovr/) you have the original data set with homicide rates and other variables from 1960 to 1990, and the reference is [Baller et al. (2001)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1745-9125.2001.tb00933.x).
+
+The data used in this exercise you can find [here](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/baller2001.rar). If you are having problems with the `.rar` file, download the [.shp](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/baller2001.shp), [.shx](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/baller2001.shx), [.dbf](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/baller2001.dbf), and [.prj](https://drive.google.com/file/d/1S-8hdIUXr4o5JmXqG5Q5uPgVnIRG2hV5/view?usp=sharing) separately. 
+
+The first step is to set up your working directory using `setwd()`, placing all the necessary data in the same folder.  
+
+```{r, include=T}
+setwd("C:/Users/User/Desktop/Rlabs/Lab5")
+```
+
+Also, call all the `library()`s  you need to perform the following tasks:
+
+```{r, echo=T, results = 'hide'}
+libs<-c("tidyverse","rgdal","ggplot2","ggthemes","tmap", "spdep")
+lapply(libs, library, character.only = TRUE)
+```
+
+
+## Reading the shapefile 
+
+To read the `.shp` file baller2001, use the function `readOGR()`.
+
+```{r, echo=T, results = 'hide'}
+homic<-readOGR("baller2001.shp",layer="baller2001")
+#View(homic@data)
+```
+
+Check the dataframe attached to the shapefile using `View(homic@data)`. There you have socio-economic variables as well as homicide rates per 100,000 (`HR90`) and three-year average homicide counts (`HC90`) per US county in 1990. In the rest of the exercise, we work with rates (`HR90`).
+
+## Maping homicide rates in 1990 across US counties
+
+Check the [Rlab 4](https://guerramarcelino.github.io/Econ414/Rlabs/lab4) for more details on the use of `tmap`. The following code give you a interactive map of homicide rates:
+
+```{r}
+tmap_mode("view")
+tm_shape(homic)+
+  tm_polygons("HR90",  
+              breaks=c(0,1,5,10,15,30,72),
+              alpha=0.7,
+              palette = "OrRd", 
+              title="Homicide Rate 1990", 
+              popup.vars=c("State"="STATE_NAME", "Homicide Rate (1990) "="HR90", "Total Population"="PO90", "Average Number of Murders"="HC90" ))+
+  tm_basemap(server="OpenStreetMap",alpha=0.5)
+```
+
+Indeed, the homicide rates were much higher in the southern counties than in the rest of the country. Also, those counties with high homicide rates are somehow clustered, evidencing positive spatial autocorrelation. In other words, the values of homicide rates are systematically related to specific geographic locations. 
+
+
+# ESDA
+
+## Defining proximity with first-order contiguity weights
+
+The first-order contiguity means that two spatial units will be considered neighbors when they share a common border of non-zero length. Here we use both queen and rook to define the elements of the $W$ matrix.  
+
+### Rook 
+
+To build a neighbors list based on contiguous boundaries, use the function `poly2nb()` from `spdep` package. Use `queen=FALSE` if you want to apply the rook criterion, and `summary()` will give you the number of links and other important information.
+
+```{r}
+rook<-poly2nb(homic, queen = FALSE)
+summary(rook)
+```
+
+To see the related contiguity map:
+```{r}
+plot(homic, main="Rook")  
+plot(rook, coords=coordinates(homic), pch = 19, cex=.8, add = TRUE, col= "red")
+```
+
+The final step is to convert the `nb` object that you just created (`rook`) to a listw object, where you have the respective row-standardized weights (`style="W"`). 
+
+```{r}
+rook_listw <- nb2listw(rook,style="W")
+```
+
+### Queen
+
+The code is almost the same as before, but now use `queen = TRUE` inside the function `poly2nb`.
+
+```{r}
+queen<-poly2nb(homic, queen = TRUE)
+queen_listw <- nb2listw(queen,style="W")
+```
+
+## Defining proximity with distance-based criterion
+
+Another way to characterize a neighborhood is to rely on geographical distance. One example is the k-nearest neighbor criterion. First, you need to get the coordinates of the centroids and then use the `kneareigh()` function defining how many neighbors you are considering (here, we get the ten closest neighbors of an area). To transform the `knn` object you got into a neighbors list (`nb`), use the function `knn2nb()`.
+
+```{r}
+coords<-coordinates(homic)
+knn<-knearneigh(coords, k = 10, longlat = TRUE)
+knn_nb<-knn2nb(knn)
+# summary(knn_nb)
+```
+
+To see the related contiguity map:
+```{r}
+plot(homic, main="10-nearest neighbors")  
+plot(knn_nb, coords=coordinates(homic), pch = 19, cex=.8, add = TRUE, col= "red")
+```
+
+The final step is to convert the `nb` object that you just created (`knn_nb`) to a listw object, where you have the respective row-standardized weights (`style="W"`). 
+
+```{r}
+knn_listw <- nb2listw(knn_nb,style="W")
+```
+
+Now you are ready to create spatially lagged variables and compute Moran's I and LISA statistics.
+
+## Spatially lagged variables and Moran's I 
+
+To illustrate the construction of spatially lagged variables, let's convert the `nb` object into a row-standardized matrix using `nb2mat()`. Note that from here until the end of the exercise, we keep using 10-nearest neighbors to characterize the neighborhood of a county. Check the knn_mat using `View(knn_mat)` - does it look like a bigger version of the row-standardized matrix we saw [here](https://guerramarcelino.github.io/Econ414/Lectures/Lec14/lec14#14)? To get the $Wx$ values, one can manually multiply $W$ (`knn_mat`) and the column `HR90` (that would be our $x$).
+
+
+```{r}
+knn_mat<-nb2mat(knn_nb, style="W")
+#View(knn_mat)
+spat_lag<-knn_mat%*%homic$HR90
+head(spat_lag,5)
+```
+
+The better way to get spatially lagged variables is to use the function `lag.listw()`. There you need two inputs: the variable you want to get its average neighborhood values and the weight matrix you are using (it has to be a `listw` object, so we use `knn_listw`). 
+
+```{r}
+homic$w_HR90<-lag.listw(knn_listw, homic$HR90)
+head(homic$w_HR90, 5)
+```
+
+Next, we get the scatterplot of homicide rates and the spatially lagged homicide rates. One can see the strong and positive spatial autocorrelation.
+
+```{r}
+library(plotly)
+g1<-ggplot(homic@data, aes(x=HR90, y=w_HR90, label=NAME)) + geom_point(color="darkorange")+
+  stat_smooth(method = "lm", formula =y~x, se=F, color="darkblue") +
+  scale_y_continuous(name = "Spatially lagged Homicide Rates 1990") +
+  scale_x_continuous(name = "Homicide Rates 1990")+
+  theme_economist_white(base_size = 17, gray_bg=FALSE)+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold"))
+
+ggplotly(g1, tooltip = c("label", "x", "y"))
+```
+
+To better assess the presence of spatial autocorrelation, one can run the Moran's I test:  
+
+
+```{r}
+moran.mc(homic$HR90, knn_listw, 999)
+```
+
+The Moran's I from the dataset is 0.3718. That value was compared to the other Is coming from 999 resampled datasets given the adopted spatial weighting scheme (10-NN). According to the result (p-value 0.001), one can reject the null hypothesis: the data are not randomly distribute over space.  
+
+Another way to get Moran's I is to run a simple regression between $Wx$ and $x$:
+
+```{r}
+reg<-lm(w_HR90~HR90, data=homic@data)
+summary(reg)
+```
+
+One can see that the coefficient associated to HR90 is 0.3718 (the Moran's I). Remember that $I=\frac{z'Wz}{z'z}$!
+
+## LISA map
+
+The local spatial statistic LISA is calculated for each spatial unit (given the neighborhood structure imposed) using the function `localmoran()`. Since we are running multiple hypothesis tests, we need to adjust for that using `p.adjust.method="fdr"`.  I am storing the results in a data frame called `locali`. We are looking for the associated p-values for each region (column 5), so I store those values in a column named `localp` in our spatial data frame `homic`.
+
+```{r}
+locali<-as.data.frame(localmoran(homic$HR90, knn_listw, alternative = "two.sided", p.adjust.method="fdr"))
+
+homic$localp<-locali[,5]
+```
+
+Before constructing the LISA map, the last step is to scale both the spatially lagged values of homicide rates (w_HR90) and homicide rates (HR90).
+
+```{r}
+homic$HR90_std<-scale(homic$HR90)
+homic$w_HR90_std<-scale(homic$w_HR90)
+```
+
+You manually separate each statistically significant result into four areas: High-High, Low-Low, High-Low, and Low-Low. All the regions with p-values higher than .05 will be considered "Not significant".
+
+```{r}
+homic$label <- NA
+homic$label[homic$HR90_std >= 0 & homic$w_HR90_std >= 0 & homic$localp <= 0.05] <- "High-High"
+homic$label[homic$HR90_std <= 0 & homic$w_HR90_std <= 0 & homic$localp <= 0.05] <- "Low-Low"
+homic$label[homic$HR90_std >= 0 & homic$w_HR90_std <= 0 & homic$localp <= 0.05] <- "High-Low"
+homic$label[homic$HR90_std <= 0 & homic$w_HR90_std >= 0 & homic$localp <= 0.05] <- "Low-High"
+homic$label[homic$localp > 0.05] <- "Not Significant" 
+
+unique(homic$label)
+```
+
+As you can see, there were no Low-Low areas according to the Local Moran's I statistics. Low-low areas would represent counties with very low homicide rates surrounded by areas with very few murder rates.
+
+```{r}
+tm_shape(homic)+
+  tm_polygons("label",  
+              palette = c("red3", "coral", "skyblue",  "#FFFFFF") ,
+              alpha=0.4, 
+              title="LISA map - Homicide Rates 1990",
+              popup.vars=c("State"="STATE_NAME", "Homicide Rate (1990) "="HR90", "Total Population"="PO90" ))+
+  tm_basemap(server="OpenStreetMap",alpha=0.5)
+```
+
+## Moran's scatterplot
+
+Here is a fancy way to construct the Moran's scatterplot using also the information of local Moran's I statistics:
+
+```{r}
+g1<-ggplot(homic@data, aes(HR90_std, w_HR90_std,color=label, label=NAME))+ 
+  theme_fivethirtyeight() +
+  geom_point(size=5)+ 
+  geom_hline(yintercept = 0, linetype = 'dashed')+ 
+  geom_vline(xintercept = 0, linetype = 'dashed')+ 
+  scale_colour_manual(values=c("red3", "coral", "skyblue",  "#FFFFFF"))+ 
+  labs(x = "Homicide Rates 1990", y="Spatially Lagged Homicide Rates 1990")+ 
+  theme(axis.text=element_text(size=18),axis.title=element_text(size=18,face="bold"), legend.text=element_text(size=15))+
+  theme(legend.title=element_blank())+
+  ggtitle("Moran's I: 0.3718")
+
+g1
+```
+
+If you want a interactive plot, use `ggplotly()`:
+
+```{r}
+ggplotly(g1, tooltip = c("label", "x", "y"))
+```

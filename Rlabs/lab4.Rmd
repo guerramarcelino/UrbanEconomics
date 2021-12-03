@@ -1,9 +1,10 @@
 ---
-title: "Dissimilarity Index"
+title: "Mapping data with tmap"
 author: "Marcelino Guerra"
-date: "Last update: 11/16/2020"
-abstract: Lecture notes on how to calculate the Racial Dissimilarity Index. 
-output: html_document
+date: "Last update: 3/2/2020"
+abstract: Lecture notes on how to read shapefiles and make maps using the tmap package.
+output: 
+  rmdformats::downcute
 ---
 
 <style type="text/css">
@@ -22,71 +23,131 @@ output: html_document
 
 ```
 
-## Getting data for Champaign-IL
+## Reading the .shp file
 
-This exercise will use data from Champaign-IL neighborhoods that come from the American Community Survey 5-year estimates (2014-2018). The first step is to load the `"acs5/profile"` variables and find the codes related to racial composition information.
+In this exercise, we will use data from Chicago-IL communities. The source is the GeoDa Data and Lab. The dataset Airbnb (same information used in [HW #1](https://guerramarcelino.github.io/Econ414/HW/HW1)) refers to Airbnb rentals, socioeconomic indicators, and crime by community area in Chicago. You can find more information about it [here](https://geodacenter.github.io/data-and-lab//airbnb_Chicago-2015/). [Here](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/airbnb.zip), you can download the related shapefile.
+
+Again, the first step is to set up your working directory using `setwd()`, placing all the necessary data at the same place. 
+```{r, include=T}
+setwd("C:/Users/User/Desktop/Rlabs/Lab3")
+```
+
+After that, you need to `require()` all the packages you need to perform the task. If it is the first time you are using them, you need to `install.packages()` first.
+
+```{r, echo=T, results = 'hide'}
+libs <- c("tigris","rgdal", "maptools", "reshape", "sp", "spdep", "GISTools", "ggplot2", "tidyverse", "tmap", "viridis")
+## If you do not have those packages, run 
+## lapply(libs, install.packages, character.only = TRUE)
+## before this
+lapply(libs, require, character.only = TRUE)
+
+```
+
+To read the .shp file `airbnb_Chicago 2015`, use the function `readOGR()`.
 
 ```{r, include=T}
-library(tidycensus)
-var_2018<-load_variables(2018, "acs5/profile")
-#View(var_2018)
-```
-Use `View(var_2018)` to find the ones related to total, white, and black populations. You are looking for "Estimate!!RACE!!Total population", "Estimate!!HISPANIC OR LATINO AND RACE!!Total population!!Not Hispanic or Latino!!Black or African American alone" and "Estimate!!HISPANIC OR LATINO AND RACE!!Total population!!Not Hispanic or Latino!!White alone". There you have Blacks and Whites who declared a single race. 
-
-The `get_acs()` with `geometry=T` allows you to make maps if you want. I set `geography="tract"` to get data from census tracts (treated as neighborhoods here).  
-
-```{r, include=T, message=F, warning=F, results = FALSE}
-chambana <-get_acs(geography = "tract", 
-                   variables = c(total="DP05_0033",
-                                 black="DP05_0078", 
-                                 white="DP05_0077"), 
-                   state = "IL",
-                   county="Champaign County",
-                   geometry = TRUE,
-                   output="wide")
+chitown<-readOGR("airbnb_Chicago 2015.shp", layer="airbnb_Chicago 2015")
 ```
 
-The following code sets the shares of whites and blacks in each census tract in Champaign County. 
-
-```{r, include=T}
-library(tidyverse)
-chambana<-chambana%>%
-          mutate(black_share=blackE/totalE,white_share=whiteE/totalE)
-
-max(chambana$black_share)
+Let's check the file first:
+```{r}
+class(chitown)
 ```
 
-As one can see, there are no ghettos in Champaign when setting the threshold as 80% of minority share. And here is the map with the percentages of black population within the county:
-
-```{r, include=T}
-library(tmap)
-tmap_mode("view")
-tm_shape(chambana)+tm_borders(lwd = 1.2, col = "white", alpha = .4)+
-  tm_polygons("black_share", breaks=c(0,.2,.4,.6,.8,1), alpha=0.7,palette = "YlGnBu", 
-              title="Share of Black Population",id="NAME",
-              popup.vars=c("Share of Black Population"="black_share", "Share of White Population"="white_share", "Total Population"="totalE" ))+
-  tm_legend(legend.title.size = 1.7,legend.text.size = 1, legend.position = c("left", "bottom"))+
-  tm_basemap(server="OpenStreetMap",alpha=0.5)
-```
-
-Here is the Racial Dissimilarity Index formula:
-
-
-$$ RDI= \frac{1}{2}\sum_{i=1}^{n}  |\underbrace{\frac{black_{i}}{black_{total}}}_\text{X}-\underbrace{\frac{white_{i}}{white_{total}}}_\text{Y}| $$
-
-where $\frac{black_{i}}{black_{total}}$ is the number of black people in a tract divided by the total of blacks in the area (in our case, the entire county). $\frac{white_{i}}{white_{total}}$ is the number of whites in a neighborhood divided by the total of whites in the county. Take the **absolute value** of this difference for each census tract. Then, sum all those numbers and multiply by .5.
-
-Note that this formula is different from [White to Non-White Racial Dissimilarity Index calculated by FRED](https://fred.stlouisfed.org/series/RACEDISPARITY017019). If you replace blacks with nonwhites in the formula above, you get very similar numbers to FRED data. To get the nonwhites, you need to take the difference between the total population and the white population.
+That means your spatial object has some data attached to it. To see how the shape looks like: 
 
 ```{r}
-tot_white<-sum(chambana$whiteE)
-tot_black<-sum(chambana$blackE)
+plot(chitown)
+```
 
-chambana$X<-chambana$blackE/tot_black
-chambana$Y<-chambana$whiteE/tot_white
-DI<-.5*sum(abs(chambana$X-chambana$Y))
-DI*100
+To check the data attached to the shapefile (try `View(chitown@data)`), 
+```{r}
+head(chitown@data)
+```
+
+## Mapping data with tmap
+
+Using the `tmap` package, one can easily make static quantile maps. In this one, we see the distribution of households below poverty (in percent) in Chicago communities:
+
+```{r}
+tm_shape(chitown)+tm_borders(lwd = 2, col = "white", alpha = .4)+
+  tm_polygons("poverty", style="quantile", alpha=0.7,palette = "-viridis", title="Poverty in Chicago Communities")+
+  tm_legend(legend.title.size = 1.7,legend.text.size = 1, legend.position = c("left", "bottom"))
+```
+
+Besides, maps can be viewed interactively by switching to view mode, using the command `tmap_mode("view")`
+
+```{r}
+tmap_mode("view")
+
+tm_shape(chitown)+tm_borders(lwd = 2, col = "white", alpha = .4)+
+  tm_polygons("poverty", style="quantile", alpha=0.7,palette = "-viridis", title="Poverty in Chicago Communities")+
+  tm_legend(legend.title.size = 1.7,legend.text.size = 1, legend.position = c("left", "bottom"))
+```
+
+It is also possible to show more information in your map by choosing variables using `popu.vars`. Finally, if you want to change the colors, choose a different `palette` ([here](https://bookdown.org/rdpeng/exdata/images/color-unnamed-chunk-11-1.png) you have some options)
+
+```{r}
+
+tm_shape(chitown)+tm_borders(lwd = 2, col = "white", alpha = .4)+
+  tm_polygons("poverty", style="quantile", alpha=0.7,palette = "YlGnBu", 
+              title="Poverty in Chicago Communities",id="community",
+              popup.vars=c("Airbnb Prices"="price_pp","Number of Airbnb spots"="num_spots",
+                           "Total Population"="population"))+
+  tm_legend(legend.title.size = 1.7,legend.text.size = 1, legend.position = c("left", "bottom"))+
+ tm_basemap(server="OpenStreetMap",alpha=0.5)
+```
+
+## Tmap + Tidycensus
+
+Using tidycensus with the option `geometry = T`, one can get coordinates of the desired areas together with Census information. Let's try the commuting times per counties in the U.S. for 2009-2013, from the American Community Survey - 5 year. First, check the dataset `acs5/profile`. 
+
+```{r, include=T}
+require(tidycensus)
+var<-load_variables(2013, dataset = "acs5/profile")
+head(var)
+```
+
+You are looking for `COMMUTING TO WORK` and `mean travel time`. The variable that corresponds to the average travel time to work is `DP03_0025`. Load it with `geometry=T` to get the coordinates for counties. Also, use `shift_geo = T` to place Alaska at the bottom of the map.  
+
+```{r, include=T}
+workers_time<-get_acs(geography = "county", 
+                      variables = c(average_time="DP03_0025"), 
+                      sumfile="acs5/profile",
+                      year=2013,
+                      geometry = T,
+                      shift_geo = T,
+                      output="wide")
+```
+
+Now, use `tmap` to plot `average_timeE` in a quantile map:
+
+```{r}
+tmap_mode("plot")
+tm_shape(workers_time)+tm_borders(lwd = 2, col = "white", alpha = .4)+
+tm_polygons("average_timeE", style="quantile",palette = "BuPu",
+              title="Commuting Time")+
+tm_legend(legend.title.size = 1,legend.text.size = .8, 
+              legend.position =c("left", "top"))+
+tm_layout(title="Average Commuting Time in U.S. Counties", 
+            title.position = c("center", "top"),
+            title.size = 1.1)
+```
+
+Finally, you can adjust the margins inside the frame and have more space between the legend and the map. Just add one more line to calibrate the `inner.margins`. The order is bottom, left, top and right. The default value is .02, and I am increasing the space on the left and at the top.
+
+```{r}
+tm_shape(workers_time)+tm_borders(lwd = 2, col = "white", alpha = .4)+
+tm_polygons("average_timeE", style="quantile",palette = "YlGnBu",
+              title="Commuting Time")+
+tm_legend(legend.title.size = 1.2,legend.text.size = 1, 
+              legend.position =c("left", "top"))+
+tm_layout(title="Average Commuting Time in U.S. Counties", 
+            title.position = c("center", "top"),
+            title.size = 1.1)+
+tm_layout(inner.margins = c(0.02, 0.15, 0.10, 0.02))
 
 ```
 
-The RDI for Champaign-IL county in 2014-2018 is 46.41.
+
+

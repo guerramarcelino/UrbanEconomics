@@ -1,0 +1,120 @@
+---
+title: "Lab Quiz Review"
+author: "Marcelino Guerra"
+date: "Last update: 4/5/2020"
+abstract: 
+output: 
+  rmdformats::readthedown
+---
+
+<style type="text/css">
+  body{
+  font-size: 13pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(include = TRUE)  # TRUE for solution; FALSE for questions set
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(message = FALSE)
+  knitr::opts_chunk$set(warning = FALSE)
+  knitr::opts_chunk$set(fig.height = 6, fig.width = 11, out.width = '100%', fig.align = "center")
+  options(width = 90)
+
+```
+
+## Reading the data
+
+This exercise will be using data on quality-of-life (QOL) in the US from [Albouy and Lue (2015)](https://www.sciencedirect.com/science/article/abs/pii/S0094119015000200). You already saw it [here](https://guerramarcelino.github.io/Econ414/Lectures/Lec7/lec7#16) and [here](https://www.bloomberg.com/news/articles/2015-06-29/a-new-index-maps-the-quality-of-life-for-2-000-u-s-neighborhoods). Download the `.RDS` file [here](https://github.com/guerramarcelino/UrbanEconomics/raw/master/Datasets/QOL.RDS). 
+
+You know the drill: setwd() first, and then readRDS(). Also, call the packages that we will be using during the exercise: `tidyverse` and `tidycensus`.
+
+```{r}
+library(tidyverse)
+library(tidycensus)
+setwd("C:/Users/User/Desktop/LabReview")
+qol<-readRDS("QOL.RDS")
+# Always good to View() the data
+View(qol)
+```
+
+The columns `QOL`, `PopDens`, and `PopChg19902000` refer to quality-of-life, population density, and population change between 1990-2000, respectively.
+
+## Top 5 & Bottom 3
+
+Let's arrange the dataset to see the five most and the three least desirable US regions in terms of quality-of-life. 
+
+**Top 5**
+
+```{r}
+qol%>%arrange(desc(QOL))%>%slice(1:5)
+```
+
+
+**Bottom 3**
+
+```{r}
+qol%>%arrange(QOL)%>%slice(1:3)
+```
+
+## Using group_by()
+
+One can condense the data into state-level quality-of-life. A better way to do that would be using a weighted (by population) average, but we will use the simple average to make things easier. Although we do not have NAs in the data,  `na.rm=T` does not hurt you.
+
+```{r}
+state_qol<-qol%>%group_by(stname)%>%summarize(qol=mean(QOL, na.rm=T))
+head(state_qol)
+```
+
+
+## Using get_acs()
+
+Having information about average quality-of-life per state, I am curious to see if there is a correlation between rents as a share of household income and quality of life. Go back to the [tidycensus Rlab](https://guerramarcelino.github.io/Econ414/Rlabs/lab3) if you are not comfortable `getting acs()`. The `geography` is `state`, the dataset is `acs5`, and the period is 2005-2009 - the oldest available for acs5. Hence, `year=2009`. You should also `load_variables()` to check the variables' code and their concept.  
+
+```{r}
+state09<-get_acs(geography = "state", 
+                 variables = c(rent_income="B25071_001"), 
+                 dataset="acs5",
+                 output="wide",
+                 year=2009)
+# View(state09)
+```
+
+## Merging
+
+Let's put both data frames together. Sometimes, you get lucky, and the common columns between datasets have the same name. More frequently, you need to rename columns, and that is our case. Hence, I will need to rename the first column in `state_qol` (stname) to `NAME`. It is also fine to do the opposite: rename the second column in `state09` (NAME) to `stname` and merge `by="stname"`.
+
+`left_join()` keeps in the merged dataset all the states included in the `state09` - the first input in the left_join() function. Since there is no information about quality of life in Hawaii, Alaska, and Puerto Rico, those states have `NA` in the column `qol`. 
+
+```{r}
+names(state_qol)[1]<-"NAME"
+final_data<-left_join(state09, state_qol, by="NAME")
+View(final_data)
+```
+
+## Using filter()
+
+Let's check how many states have above the average rent/income share. To do that, one needs to filter() by mean().
+
+The mean() is
+
+```{r}
+mean(final_data$rent_incomeE)
+```
+And here are the states (26 in total) that have a rent/income share higher than 29.23:
+
+```{r}
+final_data%>%filter(rent_incomeE>=mean(rent_incomeE))
+```
+
+## Using lm()
+
+As the final exercise, we run a simple regression using the `lm()` function. Below you can see a positive relationship between quality of life and rent as a share of income - the coefficient of `qol` is positive and statistically significant (p-value < 0.05). That was somehow expected: the higher rent/income share must offset the higher quality-of-life.    
+
+```{r}
+model1<-lm(rent_incomeE~qol, data=final_data)
+summary(model1)
+```
+
+
+
